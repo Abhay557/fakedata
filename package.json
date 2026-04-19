@@ -1,0 +1,22 @@
+{
+  "name": "@abhay557/fakedata",
+  "version": "1.0.2",
+  "description": "A versatile mock data and fun content generator including users, credit cards, jokes, anime quotes, and animal facts.",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "mock",
+    "data",
+    "generator",
+    "faker",
+    "joke",
+    "anime",
+    "fake data"
+  ],
+  "author": "abhay557",
+  "license": "ISC",
+  "dependencies": {}
+}
