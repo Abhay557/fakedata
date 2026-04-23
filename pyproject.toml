@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fakedata-python"
+version = "1.0.0"
+authors = [
+  { name="abhay557", email="abhaycormourya@gmail.com" },
+]
+description = "A versatile mock data and entertainment content generator ported to Python."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/abhay557/fakedata"
+
+[tool.setuptools.package-data]
+"fakedata.helpers" = ["*.json"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fakedata*"]
