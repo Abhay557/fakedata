@@ -1,121 +1,103 @@
-# fakedata (Python)
+# fakedata 
 
-[![Python Version](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![NPM Version](https://img.shields.io/npm/v/@abhay557/fakedata?color=red&label=npm)](https://www.npmjs.com/package/@abhay557/fakedata)
+[![PyPI Version](https://img.shields.io/pypi/v/fakedata-python?color=blue&label=pypi)](https://pypi.org/project/fakedata-python/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-A high-performance, **zero-dependency** mock data generation engine ported to Python. Designed for testing, prototyping, and local development.
-
-Whether you're building a backend prototype, seeding a database with thousands of records, or developing complex data-driven tests, `fakedata` provides a structured API for generating high-quality synthetic data across multiple domains.
-
----
-
-##  Key Features
-
-- **Zero External Dependencies**: Uses only Python standard libraries (`json`, `random`, `pathlib`).
-- **Modular Architecture**: Separate namespaces for data, entertainment, anime, and biology.
-- **Rich Datasets**: Bundled with comprehensive JSON assets (Pokemon, Users, Industry-standard resumes).
-- **Type Hinting**: Built-in support for IDE intellisense.
-- **Fast Execution**: Optimized for generating large datasets with minimal overhead.
+A high-performance, **zero-dependency** mock data generation engine, available for both **Node.js** and **Python**. Designed for testing, prototyping, and local development with 100% data parity across platforms.
 
 ---
 
-##  Installation
+##  Overview
 
-Install the package locally:
+`fakedata` is a unified utility library that provides a structured API for generating high-quality synthetic data. Whether you are working in JavaScript or Python, you get access to the same datasets, logic, and output formats.
 
+### Core Modules:
+- **Data**: Professional-grade PII, addresses, and enterprise resumes.
+- **Fun**: Pokemon stats, jokes, facts, and fortune cookies.
+- **Anime**: Curated quotes and trivia from iconic series.
+- **Animals**: Biological facts and random animal profiles.
+
+---
+
+##  Python Implementation
+
+### Installation
 ```bash
-pip install .
+pip install fakedata-python
 ```
 
----
-
-##  Quick Start
-
+### Quick Start
 ```python
 import fakedata
 
-# 1. Generate a comprehensive user profile
-user_profile = fakedata.data.user()
-print(f"Identity: {user_profile['fullName']} | City: {user_profile['address']['city']}")
+# Generate a random user profile
+user = fakedata.data.user()
+print(f"Name: {user['fullName']} | City: {user['address']['city']}")
 
-# 2. Fetch specialized entertainment data
-pokemon = fakedata.fun.pokemon()
-random_joke = fakedata.fun.joke()
-
-# 3. Filter specific anime content
-naruto_quotes = fakedata.anime.quotes_by_show('Naruto')
+# Fetch a random Pokemon
+poke = fakedata.fun.pokemon()
+print(f"Random Pokemon: {poke['name']} ({poke['Type 1']})")
 ```
 
 ---
 
-## API Documentation
+##  Node.js Implementation
 
-###  Data Module (`fakedata.data`)
-Focused on professional-grade mock data for PII and enterprise simulations.
-
-| Method | Return Type | Description |
-| :--- | :--- | :--- |
-| `user()` | `dict` | Generates a full profile (Personal Details, Address, Job, Bank Info). |
-| `users(count)` | `list` | Returns a list of `n` unique user profiles. |
-| `creditcard()` | `dict` | Generates realistic credit card data (Number, Expiry, CVV). |
-| `resume(count)` | `list` | Mock professional resumes with skills, experience, and education. |
-| `get_password(len)`| `dict` | Secure random password generator (default length: 8). |
-| `get_email()` | `dict` | Randomly generated email address. |
-| `get_city()` | `dict` | Global city name. |
-
-###  Fun (`fakedata.fun`)
-Dynamic content for gaming and entertainment applications.
-
-| Method | Return Type | Description |
-| :--- | :--- | :--- |
-| `pokemon()` | `dict` | Returns a random Pokemon with full stats, types, and abilities. |
-| `pokemon_by_type(t)`| `dict` | Filters Pokemon by specific type (e.g., 'Fire', 'Water'). |
-| `joke()` | `dict` | Randomly selected joke across various categories. |
-| `fact()` | `dict` | General knowledge facts for engagement. |
-| `fortune()` | `dict` | Philosophical or funny fortune cookies. |
-
-###  Anime Module (`fakedata.anime`)
-Curated datasets for anime-themed projects.
-
-| Method | Return Type | Description |
-| :--- | :--- | :--- |
-| `quote()` | `dict` | Iconic quotes with character and show attribution. |
-| `quotes_by_show(s)` | `dict` | All available quotes from a specific anime title. |
-| `fact()` | `dict` | Specialized trivia regarding anime history and trivia. |
-
-###  Animals Module (`fakedata.animals`)
-Simple biological data and interesting facts.
-
-| Method | Return Type | Description |
-| :--- | :--- | :--- |
-| `random_animal()` | `dict` | Returns a random animal profile. |
-| `dog_fact()` | `dict` | Canine-specific trivia and biological facts. |
-| `cat_fact()` | `dict` | Feline-specific trivia and statistics. |
-
----
-
-##  Testing
-
-To run the local test suite:
-
+### Installation
 ```bash
-python test_python.py
+npm install @abhay557/fakedata
+```
+
+### Quick Start
+```javascript
+const fakedata = require('@abhay557/fakedata');
+
+// Generate a random user profile
+const user = fakedata.data.user();
+console.log(`Name: ${user.fullName} | City: ${user.address.city}`);
+
+// Fetch a random Pokemon
+const poke = fakedata.fun.pokemon();
+console.log(`Random Pokemon: ${poke.name} (${poke['Type 1']})`);
 ```
 
 ---
 
-##  Development & Contributions
+##  API Reference (Cross-Platform)
 
-Contributions are welcome! If you'd like to add new datasets or modules, please follow these steps:
-
-1. Clone the repository.
-2. Implement your changes in `fakedata/modules/`.
-3. Add relevant tests in `tests/`.
-4. Submit a Pull Request.
+| Namespace | Method | Description |
+| :--- | :--- | :--- |
+| `data` | `user()` | Full identity profile (Name, Address, Job, Bank). |
+| `data` | `users(n)` | Returns an array of `n` unique user profiles. |
+| `data` | `creditcard()` | Realistic credit card data (Number, Expiry, CVV). |
+| `fun` | `pokemon()` | Random Pokemon with stats and types. |
+| `fun` | `joke()` | Random joke across various categories. |
+| `anime` | `quote()` | Iconic anime quotes with character attribution. |
+| `anime` | `quotes_by_show(s)` | Filtered quotes from a specific show. |
+| `animals` | `random_animal()` | Random animal profile and interesting facts. |
 
 ---
 
-##  License
+##  Why use fakedata?
+
+1. **Zero Dependencies**: Pure implementation using native language features.
+2. **Cross-Language Parity**: If you use the same seed/logic, you get the same data structures in both JS and Python.
+3. **Optimized for Speed**: Datasets are pre-loaded or efficiently indexed for rapid generation of large datasets.
+4. **Rich Datasets**: Bundled with comprehensive JSON assets, no internet connection required.
+
+---
+
+## Contributing
+
+Contributions are welcome! If you'd like to add new datasets or modules:
+1. Ensure changes are implemented in **both** `src/` (JS) and `fakedata/` (Python).
+2. Maintain naming parity for methods and JSON keys.
+3. Submit a Pull Request.
+
+---
+
+## License
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
