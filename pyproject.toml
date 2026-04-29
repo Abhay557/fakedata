@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fakedata-python"
-version = "1.0.0"
+version = "1.0.4"
 authors = [
   { name="abhay557", email="abhaycormourya@gmail.com" },
 ]

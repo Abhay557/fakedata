@@ -68,7 +68,7 @@ console.log(`Random Pokemon: ${poke.name} (${poke['Type 1']})`);
 
 | Namespace | Method | Description |
 | :--- | :--- | :--- |
-| `data` | `user()` | Full identity profile (Name, Address, Job, Bank). |
+| `data` | `user()` | Full identity profile (Name, Address, Job, Bank, Hobbies, Tech Profile). |
 | `data` | `users(n)` | Returns an array of `n` unique user profiles. |
 | `data` | `creditcard()` | Realistic credit card data (Number, Expiry, CVV). |
 | `fun` | `pokemon()` | Random Pokemon with stats and types. |

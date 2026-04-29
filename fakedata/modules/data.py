@@ -13,6 +13,8 @@ emails = load_data('email.json')
 street_data = load_data('street.json')
 state_data = load_data('states.json')
 state_codes = load_data('shortformstate.json')
+hobbies_data = load_data('hobbies.json')
+devices_data = load_data('devices.json')
 
 def get_random(arr):
     return random.choice(arr)
@@ -47,6 +49,23 @@ def generate_single_user(id_index=None):
     birth_year = random.randint(1970, 2010)
     birth_month = random.randint(1, 12)
     birth_day = random.randint(1, 28)
+
+    family_status_options = ["single", "married", "married, 1 child", "married, 2 children", "divorced"]
+    critical_features_options = ["ease of use", "reliability", "security features", "battery life", "camera quality", "performance"]
+    primary_uses_options = ["communication", "education", "organization", "entertainment", "work", "social media"]
+
+    user_hobbies = [get_random(hobbies_data)['hobby'], get_random(hobbies_data)['hobby']]
+    tech_profile = {
+        "devices": {
+            "additional_devices": [get_random(devices_data)['Device Name'], get_random(devices_data)['Device Name']],
+            "smartphone": get_random(devices_data)['Device Name']
+        },
+        "phone_preferences": {
+            "critical_features": random.sample(critical_features_options, 3),
+            "primary_uses": random.sample(primary_uses_options, 3)
+        },
+        "interest": user_hobbies
+    }
 
     return {
         "id": str(user_id),
@@ -87,7 +106,10 @@ def generate_single_user(id_index=None):
             "title": occupation,
             "salary": f"{random.randint(5000, 50000)}$",
             "department": get_random(departments),
-        }
+        },
+        "family_status": get_random(family_status_options),
+        "hobbies": user_hobbies,
+        "technology_profile": tech_profile
     }
 
 def user():

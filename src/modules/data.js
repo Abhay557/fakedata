@@ -12,6 +12,8 @@ const lastNames = loadData('last.json');
 const emails = loadData('email.json');
 const streetData = loadData('street.json');
 const stateData = loadData('states.json');
+const hobbiesData = loadData('hobbies.json');
+const devicesData = loadData('devices.json');
 
 const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -49,6 +51,23 @@ const generateSingleUser = (idIndex = null) => {
     const birthYear = Math.floor(Math.random() * 40) + 1970;
     const birthMonth = Math.floor(Math.random() * 12) + 1;
     const birthDay = Math.floor(Math.random() * 28) + 1;
+
+    const familyStatusOptions = ["single", "married", "married, 1 child", "married, 2 children", "divorced"];
+    const criticalFeaturesOptions = ["ease of use", "reliability", "security features", "battery life", "camera quality", "performance"];
+    const primaryUsesOptions = ["communication", "education", "organization", "entertainment", "work", "social media"];
+    
+    const userHobbies = [getRandom(hobbiesData).hobby, getRandom(hobbiesData).hobby];
+    const techProfile = {
+        devices: {
+            additional_devices: [getRandom(devicesData)["Device Name"], getRandom(devicesData)["Device Name"]],
+            smartphone: getRandom(devicesData)["Device Name"]
+        },
+        phone_preferences: {
+            critical_features: [getRandom(criticalFeaturesOptions), getRandom(criticalFeaturesOptions), getRandom(criticalFeaturesOptions)],
+            primary_uses: [getRandom(primaryUsesOptions), getRandom(primaryUsesOptions), getRandom(primaryUsesOptions)]
+        },
+        interest: userHobbies
+    };
 
     return {
         id: `${id}`,
@@ -89,7 +108,10 @@ const generateSingleUser = (idIndex = null) => {
             title: occupation,
             salary: `${Math.floor(Math.random() * 45000) + 5000}$`,
             department: getRandom(departments),
-        }
+        },
+        family_status: getRandom(familyStatusOptions),
+        hobbies: userHobbies,
+        technology_profile: techProfile
     };
 };
 
