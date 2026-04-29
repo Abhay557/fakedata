@@ -1,15 +1,16 @@
 # fakedata 
 
 [![NPM Version](https://img.shields.io/npm/v/@abhay557/fakedata?color=red&label=npm)](https://www.npmjs.com/package/@abhay557/fakedata)
+[![PyPI Version](https://img.shields.io/pypi/v/fakedata-python?color=blue&label=pypi)](https://pypi.org/project/fakedata-python/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-A high-performance, **zero-dependency** mock data generation engine for **Node.js**. Designed for testing, prototyping, and local development.
+A high-performance, **zero-dependency** mock data generation engine, available for both **Node.js** and **Python**. Designed for testing, prototyping, and local development with 100% data parity across platforms.
 
 ---
 
 ##  Overview
 
-`fakedata` is a utility library that provides a structured API for generating high-quality synthetic data in JavaScript.
+`fakedata` is a unified utility library that provides a structured API for generating high-quality synthetic data. Whether you are working in JavaScript or Python, you get access to the same datasets, logic, and output formats.
 
 ### Core Modules:
 - **Data**: Professional-grade PII, addresses, and enterprise resumes.
@@ -19,6 +20,27 @@ A high-performance, **zero-dependency** mock data generation engine for **Node.j
 
 ---
 
+##  Python Implementation
+
+### Installation
+```bash
+pip install fakedata-python
+```
+
+### Quick Start
+```python
+import fakedata
+
+# Generate a random user profile
+user = fakedata.data.user()
+print(f"Name: {user['fullName']} | City: {user['address']['city']}")
+
+# Fetch a random Pokemon
+poke = fakedata.fun.pokemon()
+print(f"Random Pokemon: {poke['name']} ({poke['Type 1']})")
+```
+
+---
 
 ##  Node.js Implementation
 
@@ -42,7 +64,7 @@ console.log(`Random Pokemon: ${poke.name} (${poke['Type 1']})`);
 
 ---
 
-##  API Reference
+##  API Reference (Cross-Platform)
 
 | Namespace | Method | Description |
 | :--- | :--- | :--- |
@@ -59,15 +81,17 @@ console.log(`Random Pokemon: ${poke.name} (${poke['Type 1']})`);
 
 ##  Why use fakedata?
 
-2. **Optimized for Speed**: Datasets are pre-loaded or efficiently indexed for rapid generation of large datasets.
-3. **Rich Datasets**: Bundled with comprehensive JSON assets, no internet connection required.
+1. **Zero Dependencies**: Pure implementation using native language features.
+2. **Cross-Language Parity**: If you use the same seed/logic, you get the same data structures in both JS and Python.
+3. **Optimized for Speed**: Datasets are pre-loaded or efficiently indexed for rapid generation of large datasets.
+4. **Rich Datasets**: Bundled with comprehensive JSON assets, no internet connection required.
 
 ---
 
 ## Contributing
 
 Contributions are welcome! If you'd like to add new datasets or modules:
-1. Ensure changes are implemented in `src/`.
+1. Ensure changes are implemented in **both** `src/` (JS) and `fakedata/` (Python).
 2. Maintain naming parity for methods and JSON keys.
 3. Submit a Pull Request.
 
@@ -79,4 +103,4 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 
 **Maintainer**: [abhay557](https://github.com/abhay557)
 
-- Project Commit History - ```https://github.com/abhay557/random-api.xyz```
+- Project Commit History - `https://github.com/abhay557/random-api.xyz`
