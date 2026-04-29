@@ -22,3 +22,14 @@ yarn-debug.log*
 yarn-error.log*
 logs/
 *.log
+
+# Python specific files and directories
+fakedata/
+fakedata_python.egg-info/
+test_python.py
+pyproject.toml
+dist/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

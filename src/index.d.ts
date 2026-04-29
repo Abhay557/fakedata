@@ -46,6 +46,19 @@ export namespace data {
             salary: string;
             department: string;
         };
+        family_status: string;
+        hobbies: string[];
+        technology_profile: {
+            devices: {
+                additional_devices: string[];
+                smartphone: string;
+            };
+            phone_preferences: {
+                critical_features: string[];
+                primary_uses: string[];
+            };
+            interest: string[];
+        };
     }
 
     export function user(): User;
