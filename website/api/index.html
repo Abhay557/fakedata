@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="../favicon.png" />
+  <title>Docs — fakedata</title>
+  <meta name="description"
+    content="Package documentation for fakedata — explore all modules, methods, and live examples for Node.js and Python." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root{--bg:#0a0a0a;--bg1:#111111;--bg2:#181818;--bg3:#222222;--bd:#2a2a2a;--bh:#404040;--tp:#f0f0f0;--ts:#888888;--tm:#555555;--w:#ffffff;--r:6px;--font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;--tr:180ms ease}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;height:100%;overflow:hidden}
+    body{font-family:var(--font);background:var(--bg);color:var(--tp);line-height:1.6}
+    a{color:inherit;text-decoration:none}
+
+    /* NAV */
+    #navbar{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;background:rgba(10,10,10,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
+    .nav-inner{padding:0 24px;height:100%;display:flex;align-items:center;gap:32px}
+    .nav-logo{font-size:18px;font-weight:700;letter-spacing:-.5px}
+    .logo-bracket{color:var(--tm)}
+    .nav-links{display:flex;align-items:center;gap:24px;list-style:none;margin-left:auto}
+    .nav-links a{font-size:14px;color:var(--ts);transition:color var(--tr)}
+    .nav-links a:hover,.nav-active{color:var(--w)!important;font-weight:600}
+    .nav-btn-gh{padding:7px 16px;border:1px solid var(--bd);border-radius:var(--r)}
+    .nav-btn-gh:hover{background:var(--bg2)}
+
+    /* ROOT LAYOUT */
+    .api-page-wrap{display:flex;flex-direction:row;position:fixed;top:60px;left:0;right:0;bottom:0}
+
+    /* SIDEBAR */
+    .api-sidebar{width:260px;flex:0 0 260px;height:100%;overflow-y:auto;background:var(--bg1);border-right:1px solid var(--bd);padding:16px 0}
+    .sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:0 20px 14px;border-bottom:1px solid var(--bd);margin-bottom:6px}
+    .sidebar-title{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--tm)}
+    .sidebar-badge{font-family:var(--mono);font-size:10px;background:var(--bg3);color:var(--tm);padding:2px 8px;border-radius:100px;border:1px solid var(--bd)}
+    .sidebar-group-label{padding:10px 20px 3px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm)}
+    .sidebar-item{display:block;padding:7px 20px;font-size:12px;font-family:var(--mono);color:var(--ts);border-left:2px solid transparent;cursor:pointer;transition:color var(--tr),background var(--tr),border-color var(--tr)}
+    .sidebar-item:hover{color:var(--w);background:rgba(255,255,255,.04)}
+    .sidebar-item.active{color:var(--w);border-left-color:var(--w);background:rgba(255,255,255,.05)}
+
+    /* MAIN */
+    .api-main{flex:1 1 0%;min-width:0;height:100%;overflow-y:auto;padding:48px 56px 80px}
+
+    /* SECTIONS */
+    .api-section{display:none}
+    .api-section.active{display:block}
+    .api-section-title{font-size:26px;font-weight:800;letter-spacing:-1px;margin-bottom:10px}
+    .api-section-desc{font-size:15px;color:var(--ts);line-height:1.7;margin-bottom:32px}
+
+    /* ENDPOINT BAR */
+    .api-endpoint-tag{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:10px 16px;margin-bottom:24px;font-family:var(--mono)}
+    .method-badge{background:rgba(255,255,255,.08);color:var(--w);font-size:10px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid var(--bd);flex-shrink:0}
+    .endpoint-path{font-size:13px;color:var(--tp);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .run-btn{background:var(--w);color:#000;border:none;cursor:pointer;font-size:12px;font-weight:700;padding:8px 18px;border-radius:var(--r);font-family:var(--font);white-space:nowrap;flex-shrink:0;transition:opacity var(--tr)}
+    .run-btn:hover{opacity:.82}
+    .run-btn.running{opacity:.4;cursor:not-allowed}
+
+    /* PARAM */
+    .param-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm);margin:28px 0 10px}
+    .param-table-wrap{border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+    .param-table{width:100%;border-collapse:collapse;font-size:13px}
+    .param-table th{background:var(--bg2);padding:9px 16px;text-align:left;color:var(--tm);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bd)}
+    .param-table td{padding:12px 16px;border-bottom:1px solid var(--bd);color:var(--ts)}
+    .param-table tr:last-child td{border-bottom:none}
+    .param-table td code{font-family:var(--mono);font-size:12px;background:var(--bg2);padding:2px 6px;border-radius:4px;color:var(--tp)}
+    .param-input-row{margin-top:16px;font-size:13px;color:var(--ts);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .param-input{background:var(--bg2);border:1px solid var(--bd);color:var(--w);font-family:var(--mono);font-size:13px;padding:7px 12px;border-radius:var(--r);outline:none;min-width:120px;-webkit-appearance:none}
+    .param-input:focus{border-color:var(--bh)}
+
+    /* SCHEMA */
+    .schema-block{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);padding:18px 22px;overflow-x:auto;margin-bottom:4px}
+    .schema-block pre{font-family:var(--mono);font-size:13px;line-height:1.8;white-space:pre}
+
+    /* RESPONSE */
+    .response-block{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;min-height:80px}
+    .response-toolbar{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--bd);background:var(--bg2)}
+    .response-status-ok{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--ts)}
+    .status-dot{width:7px;height:7px;border-radius:50%;background:#68d391;flex-shrink:0}
+    .response-copy{font-size:11px;font-family:var(--mono);background:none;border:1px solid var(--bd);color:var(--tm);cursor:pointer;padding:4px 10px;border-radius:4px;transition:color var(--tr)}
+    .response-copy:hover{color:var(--w)}
+    .response-body{padding:18px 22px;overflow-x:auto;max-height:400px;overflow-y:auto}
+    .response-body pre{font-family:var(--mono);font-size:13px;line-height:1.75;white-space:pre-wrap;word-break:break-word}
+    .response-placeholder{padding:24px 22px;color:var(--tm);font-size:13px;font-family:var(--mono)}
+    .response-loading{padding:22px;display:flex;align-items:center;gap:12px;color:var(--tm);font-size:13px;font-family:var(--mono)}
+    .spinner{width:14px;height:14px;border:2px solid var(--bd);border-top-color:var(--w);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* INTRO CARDS */
+    .api-info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:36px}
+    .api-info-card{background:var(--bg1);border:1px solid var(--bd);border-radius:10px;padding:22px;transition:border-color var(--tr)}
+    .api-info-card:hover{border-color:var(--bh)}
+    .info-card-icon{font-size:22px;margin-bottom:12px}
+    .api-info-card h3{font-size:14px;font-weight:700;margin-bottom:6px}
+    .api-info-card p{font-size:13px;color:var(--ts);line-height:1.6}
+
+    /* QUICKSTART TABS */
+    .api-quickstart{margin-top:32px}
+    .api-quickstart>h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm);margin-bottom:12px}
+    .lang-tabs{display:flex;border-bottom:1px solid var(--bd)}
+    .lang-tab{background:none;border:none;cursor:pointer;padding:8px 18px;font-size:13px;color:var(--tm);font-family:var(--mono);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color var(--tr),border-color var(--tr)}
+    .lang-tab.active{color:var(--w);border-bottom-color:var(--w)}
+    .code-panel{background:var(--bg1);border:1px solid var(--bd);border-top:none;border-radius:0 0 var(--r) var(--r);padding:18px 22px}
+    .code-panel pre{font-family:var(--mono);font-size:13px;line-height:1.85;overflow-x:auto}
+    .code-panel.hidden{display:none}
+
+    /* SYNTAX HIGHLIGHT */
+    .c-keyword{color:#c792ea}.c-var{color:#82aaff}.c-fn{color:#82b1ff}.c-str{color:#c3e88d}.c-comment{color:#546e7a;font-style:italic}.c-op{color:#555}.c-prop{color:#f07178}.c-num{color:#f78c6c}
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+    ::-webkit-scrollbar-thumb:hover{background:var(--bh)}
+
+    @media(max-width:860px){
+      html,body{overflow:auto;height:auto}
+      .api-page-wrap{position:static;flex-direction:column;height:auto}
+      .api-sidebar{width:100%;flex:none;height:auto;overflow-y:visible;border-right:none;border-bottom:1px solid var(--bd)}
+      .api-main{height:auto;overflow-y:visible;padding:32px 24px 60px}
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── NAV ── -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="../index.html">
+        <span class="logo-bracket">{</span>fakedata<span class="logo-bracket">}</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="../index.html#usecases">Use Cases</a></li>
+        <li><a href="index.html" class="nav-active">Docs</a></li>
+        <li><a href="../index.html#install">Install</a></li>
+        <li><a href="https://github.com/abhay557/fakedata" target="_blank" class="nav-btn-gh">GitHub ↗</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ── LAYOUT ── -->
+  <div class="api-page-wrap">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="api-sidebar" id="api-sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Documentation</span>
+        <span class="sidebar-badge">v1.0</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Overview</div>
+          <a class="sidebar-item active" data-section="intro" href="#">Introduction</a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Data Module</div>
+          <a class="sidebar-item" data-section="user" href="#">data.user()</a>
+          <a class="sidebar-item" data-section="users" href="#">data.users(n)</a>
+          <a class="sidebar-item" data-section="creditcard" href="#">data.creditcard()</a>
+          <a class="sidebar-item" data-section="email" href="#">data.get_email()</a>
+          <a class="sidebar-item" data-section="city" href="#">data.get_city()</a>
+          <a class="sidebar-item" data-section="password" href="#">data.get_password()</a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Fun Module</div>
+          <a class="sidebar-item" data-section="pokemon" href="#">fun.pokemon()</a>
+          <a class="sidebar-item" data-section="pokemon-type" href="#">fun.pokemon_by_type()</a>
+          <a class="sidebar-item" data-section="joke" href="#">fun.joke()</a>
+          <a class="sidebar-item" data-section="fact" href="#">fun.fact()</a>
+          <a class="sidebar-item" data-section="fortune" href="#">fun.fortune()</a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Anime Module</div>
+          <a class="sidebar-item" data-section="anime-quote" href="#">anime.quote()</a>
+          <a class="sidebar-item" data-section="anime-show" href="#">anime.quotes_by_show()</a>
+          <a class="sidebar-item" data-section="anime-fact" href="#">anime.fact()</a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Animals Module</div>
+          <a class="sidebar-item" data-section="animal" href="#">animals.random_animal()</a>
+          <a class="sidebar-item" data-section="dog-fact" href="#">animals.dog_fact()</a>
+          <a class="sidebar-item" data-section="cat-fact" href="#">animals.cat_fact()</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="api-main">
+
+      <!-- INTRO -->
+      <section class="api-section active" id="sec-intro">
+        <div class="api-section-header">
+          <h1 class="api-section-title">Introduction</h1>
+          <p class="api-section-desc">fakedata provides a structured, consistent API for generating synthetic data. Zero
+            external dependencies. Same structure across Node.js and Python.</p>
+        </div>
+        <div class="api-info-grid">
+          <div class="api-info-card">
+            <div class="info-card-icon"></div>
+            <h3>Zero Dependencies</h3>
+            <p>No external packages required. Bundles all data as local JSON files.</p>
+          </div>
+          <div class="api-info-card">
+            <div class="info-card-icon"></div>
+            <h3>Consistent API</h3>
+            <p>Same method names and return schemas in both Node.js and Python.</p>
+          </div>
+          <div class="api-info-card">
+            <div class="info-card-icon"></div>
+            <h3>Instant Results</h3>
+            <p>Data is pre-loaded into memory. Generation is effectively O(1).</p>
+          </div>
+          <div class="api-info-card">
+            <div class="info-card-icon"></div>
+            <h3>MIT License</h3>
+            <p>Free to use in commercial and open-source projects.</p>
+          </div>
+        </div>
+        <div class="api-quickstart">
+          <h3>Quick Start</h3>
+          <div class="lang-tabs">
+            <button class="lang-tab active" data-lang="js">JavaScript</button>
+            <button class="lang-tab" data-lang="py">Python</button>
+          </div>
+          <div class="code-panel" id="qs-js">
+            <pre><span class="c-keyword">const</span> <span class="c-var">fakedata</span> <span class="c-op">=</span> <span class="c-fn">require</span>(<span class="c-str">'@abhay557/fakedata'</span>);
+
+<span class="c-comment">// Generate a full user</span>
+<span class="c-keyword">const</span> <span class="c-var">user</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>();
+
+<span class="c-comment">// Get a Pokémon</span>
+<span class="c-keyword">const</span> <span class="c-var">poke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>();
+
+<span class="c-comment">// Random joke</span>
+<span class="c-keyword">const</span> <span class="c-var">joke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">joke</span>();</pre>
+          </div>
+          <div class="code-panel hidden" id="qs-py">
+            <pre><span class="c-keyword">import</span> <span class="c-var">fakedata</span>
+
+<span class="c-comment"># Generate a full user</span>
+<span class="c-var">user</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>()
+
+<span class="c-comment"># Get a Pokémon</span>
+<span class="c-var">poke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>()
+
+<span class="c-comment"># Random joke</span>
+<span class="c-var">joke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">joke</span>()</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- DATA.USER -->
+      <section class="api-section" id="sec-user">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.data.user()</span>
+          <button class="run-btn" id="run-user">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">data.user()</h2>
+        <p class="api-section-desc">Generates a single, comprehensive mock user profile including personal details,
+          address, employment, and banking information.</p>
+
+        <h4 class="param-title">Parameters</h4>
+        <div class="param-table-wrap">
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>—</td>
+                <td>—</td>
+                <td>No</td>
+                <td>No parameters required.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="param-title">Response Schema</h4>
+        <div class="schema-block">
+          <pre>{
+  <span class="c-prop">"fullName"</span>:   <span class="c-str">string</span>,
+  <span class="c-prop">"email"</span>:      <span class="c-str">string</span>,
+  <span class="c-prop">"phone"</span>:      <span class="c-str">string</span>,
+  <span class="c-prop">"address"</span>: {
+    <span class="c-prop">"street"</span>: <span class="c-str">string</span>,
+    <span class="c-prop">"city"</span>:   <span class="c-str">string</span>,
+    <span class="c-prop">"zip"</span>:    <span class="c-str">string</span>
+  },
+  <span class="c-prop">"job"</span>: {
+    <span class="c-prop">"title"</span>:   <span class="c-str">string</span>,
+    <span class="c-prop">"company"</span>: <span class="c-str">string</span>
+  },
+  <span class="c-prop">"creditCard"</span>: {
+    <span class="c-prop">"type"</span>:   <span class="c-str">string</span>,
+    <span class="c-prop">"number"</span>: <span class="c-str">string</span>,
+    <span class="c-prop">"expiry"</span>: <span class="c-str">string</span>,
+    <span class="c-prop">"cvv"</span>:    <span class="c-str">string</span>
+  }
+}</pre>
+        </div>
+
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-user">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- DATA.USERS -->
+      <section class="api-section" id="sec-users">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.data.users(n)</span>
+          <button class="run-btn" id="run-users">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">data.users(n)</h2>
+        <p class="api-section-desc">Generates an array of n unique mock user profiles. Ideal for seeding databases or
+          populating paginated tables.</p>
+        <h4 class="param-title">Parameters</h4>
+        <div class="param-table-wrap">
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>n</code></td>
+                <td>integer</td>
+                <td>Yes</td>
+                <td>Number of user profiles to generate.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="param-input-row">
+          <label>Count: <input class="param-input" id="inp-users-count" type="number" value="3" min="1"
+              max="20" /></label>
+        </div>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-users">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- DATA.CREDITCARD -->
+      <section class="api-section" id="sec-creditcard">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.data.creditcard()</span>
+          <button class="run-btn" id="run-creditcard">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">data.creditcard()</h2>
+        <p class="api-section-desc">Generates a realistic mock credit card profile. Not a real card — safe for UI
+          testing and prototyping.</p>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-creditcard">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- DATA.EMAIL -->
+      <section class="api-section" id="sec-email">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.data.get_email()</span>
+          <button class="run-btn" id="run-email">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">data.get_email()</h2>
+        <p class="api-section-desc">Returns a single randomly generated email address with a realistic domain.</p>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-email">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- DATA.CITY -->
+      <section class="api-section" id="sec-city">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.data.get_city()</span>
+          <button class="run-btn" id="run-city">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">data.get_city()</h2>
+        <p class="api-section-desc">Returns a random global city name from the bundled dataset.</p>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-city">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- DATA.PASSWORD -->
+      <section class="api-section" id="sec-password">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.data.get_password(len)</span>
+          <button class="run-btn" id="run-password">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">data.get_password(len)</h2>
+        <p class="api-section-desc">Generates a secure random password of specified length. Includes uppercase,
+          lowercase, numbers, and symbols.</p>
+        <div class="param-input-row">
+          <label>Length: <input class="param-input" id="inp-pass-len" type="number" value="12" min="6"
+              max="64" /></label>
+        </div>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-password">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- FUN.POKEMON -->
+      <section class="api-section" id="sec-pokemon">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.fun.pokemon()</span>
+          <button class="run-btn" id="run-pokemon">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">fun.pokemon()</h2>
+        <p class="api-section-desc">Returns a randomly selected Pokémon from the bundled dataset of 800+ entries with
+          full stats.</p>
+        <h4 class="param-title">Response Schema</h4>
+        <div class="schema-block">
+          <pre>{
+  <span class="c-prop">"id"</span>:          <span class="c-str">integer</span>,
+  <span class="c-prop">"name"</span>:        <span class="c-str">string</span>,
+  <span class="c-prop">"Type 1"</span>:      <span class="c-str">string</span>,
+  <span class="c-prop">"Type 2"</span>:      <span class="c-str">string | ""</span>,
+  <span class="c-prop">"HP"</span>:          <span class="c-str">integer</span>,
+  <span class="c-prop">"Attack"</span>:      <span class="c-str">integer</span>,
+  <span class="c-prop">"Defense"</span>:     <span class="c-str">integer</span>,
+  <span class="c-prop">"Speed"</span>:       <span class="c-str">integer</span>,
+  <span class="c-prop">"Generation"</span>:  <span class="c-str">integer</span>,
+  <span class="c-prop">"Legendary"</span>:   <span class="c-str">boolean</span>
+}</pre>
+        </div>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-pokemon">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- FUN.POKEMON_BY_TYPE -->
+      <section class="api-section" id="sec-pokemon-type">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.fun.pokemon_by_type(type)</span>
+          <button class="run-btn" id="run-pokemon-type">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">fun.pokemon_by_type(type)</h2>
+        <p class="api-section-desc">Filters Pokémon by a specific type and returns a random match.</p>
+        <div class="param-input-row">
+          <label>Type:
+            <select class="param-input" id="inp-poke-type">
+              <option>Fire</option>
+              <option>Water</option>
+              <option>Grass</option>
+              <option>Electric</option>
+              <option>Psychic</option>
+              <option>Dragon</option>
+              <option>Ghost</option>
+              <option>Dark</option>
+              <option>Steel</option>
+              <option>Fairy</option>
+              <option>Ice</option>
+              <option>Normal</option>
+              <option>Fighting</option>
+              <option>Poison</option>
+              <option>Ground</option>
+              <option>Rock</option>
+              <option>Bug</option>
+              <option>Flying</option>
+            </select>
+          </label>
+        </div>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-pokemon-type">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- FUN.JOKE -->
+      <section class="api-section" id="sec-joke">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.fun.joke()</span>
+          <button class="run-btn" id="run-joke">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">fun.joke()</h2>
+        <p class="api-section-desc">Returns a random joke with setup and punchline from a dataset of 500+ jokes across
+          general, programming, and knock-knock categories.</p>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-joke">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- FUN.FACT -->
+      <section class="api-section" id="sec-fact">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.fun.fact()</span>
+          <button class="run-btn" id="run-fact">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">fun.fact()</h2>
+        <p class="api-section-desc">Returns a random general knowledge fact from the bundled dataset.</p>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-fact">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- FUN.FORTUNE -->
+      <section class="api-section" id="sec-fortune">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.fun.fortune()</span>
+          <button class="run-btn" id="run-fortune">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">fun.fortune()</h2>
+        <p class="api-section-desc">Returns a philosophical or funny fortune cookie-style message.</p>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-fortune">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- ANIME.QUOTE -->
+      <section class="api-section" id="sec-anime-quote">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.anime.quote()</span>
+          <button class="run-btn" id="run-anime-quote">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">anime.quote()</h2>
+        <p class="api-section-desc">Returns a random iconic anime quote with character and show attribution.</p>
+        <h4 class="param-title">Response Schema</h4>
+        <div class="schema-block">
+          <pre>{
+  <span class="c-prop">"anime"</span>:     <span class="c-str">string</span>,
+  <span class="c-prop">"quote"</span>:     <span class="c-str">string</span>,
+  <span class="c-prop">"character"</span>: <span class="c-str">string</span>,
+  <span class="c-prop">"id"</span>:        <span class="c-str">integer</span>
+}</pre>
+        </div>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-anime-quote">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- ANIME.QUOTES_BY_SHOW -->
+      <section class="api-section" id="sec-anime-show">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.anime.quotes_by_show(name)</span>
+          <button class="run-btn" id="run-anime-show">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">anime.quotes_by_show(name)</h2>
+        <p class="api-section-desc">Filters and returns a random quote from a specific anime series. Case-insensitive
+          partial match.</p>
+        <div class="param-input-row">
+          <label>Show name: <input class="param-input" id="inp-anime-show" type="text" value="Naruto"
+              placeholder="e.g. Naruto" /></label>
+        </div>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-anime-show">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- ANIME.FACT -->
+      <section class="api-section" id="sec-anime-fact">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.anime.fact()</span>
+          <button class="run-btn" id="run-anime-fact">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">anime.fact()</h2>
+        <p class="api-section-desc">Returns a random anime trivia fact with a question and answer format.</p>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-anime-fact">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- ANIMALS.RANDOM_ANIMAL -->
+      <section class="api-section" id="sec-animal">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.animals.random_animal()</span>
+          <button class="run-btn" id="run-animal">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">animals.random_animal()</h2>
+        <p class="api-section-desc">Returns a randomly selected animal from a list of 200+ species.</p>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-animal">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- ANIMALS.DOG_FACT -->
+      <section class="api-section" id="sec-dog-fact">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.animals.dog_fact()</span>
+          <button class="run-btn" id="run-dog-fact">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">animals.dog_fact()</h2>
+        <p class="api-section-desc">Returns a random canine-specific fact from the bundled dataset.</p>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-dog-fact">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+      <!-- ANIMALS.CAT_FACT -->
+      <section class="api-section" id="sec-cat-fact">
+        <div class="api-endpoint-tag">
+          <span class="method-badge">GET</span>
+          <span class="endpoint-path">fakedata.animals.cat_fact()</span>
+          <button class="run-btn" id="run-cat-fact">▶ Run</button>
+        </div>
+        <h2 class="api-section-title">animals.cat_fact()</h2>
+        <p class="api-section-desc">Returns a random feline-specific fact from the bundled dataset.</p>
+        <h4 class="param-title">Live Response</h4>
+        <div class="response-block" id="res-cat-fact">
+          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="../data.js"></script>
+  <script src="api.js"></script>
+</body>
+
+</html>

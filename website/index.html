@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <title>fakedata — Zero-dependency Mock Data Generator</title>
+  <meta name="description"
+    content="A high-performance, zero-dependency mock data library for Node.js and Python. Generate users, Pokemon, jokes, anime quotes and more." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ── NAV ───────────────────────────────────────────────── -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <span class="logo-bracket">{</span>fakedata<span class="logo-bracket">}</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html#usecases">Use Cases</a></li>
+        <li><a href="api/index.html">Docs</a></li>
+        <li><a href="index.html#install">Install</a></li>
+        <li><a href="https://github.com/abhay557/fakedata" target="_blank" class="nav-btn-gh">GitHub ↗</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── HERO ──────────────────────────────────────────────── -->
+  <header class="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-inner">
+      <div class="hero-badge">Open Source · MIT · Zero Dependencies · TypeScript Ready</div>
+      <h1 class="hero-title">
+        Generate <span class="gradient-text">Fake Data</span><br />at the Speed of Code
+      </h1>
+      <p class="hero-sub">
+        A production-grade mock data engine for <strong>Node.js</strong>, <strong>TypeScript</strong>, and <strong>Python</strong>.
+        Users, Pokémon, jokes, anime quotes, and more — all from local datasets.
+      </p>
+      <div class="hero-actions">
+        <a href="api/index.html" class="btn-primary" id="try-playground-btn">View Docs →</a>
+        <a href="https://github.com/abhay557/fakedata" class="btn-ghost" target="_blank">View on GitHub</a>
+      </div>
+      <div class="hero-install-row">
+        <div class="install-tab-group">
+          <button class="install-tab active" data-lang="npm">npm</button>
+          <button class="install-tab" data-lang="pip">pip</button>
+        </div>
+        <div class="install-code" id="install-snippet">
+          <code id="install-code-text">npm install @abhay557/fakedata</code>
+          <button class="copy-btn" id="copy-install" aria-label="Copy">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="hero-code-preview">
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot dot-r"></span>
+          <span class="dot dot-y"></span>
+          <span class="dot dot-g"></span>
+          <span class="window-title">quickstart.ts</span>
+        </div>
+        <pre class="code-block"><span class="c-keyword">import</span> <span class="c-var">fakedata</span> <span class="c-keyword">from</span> <span class="c-str">'@abhay557/fakedata'</span>;
+
+<span class="c-comment">// Generate a full user profile</span>
+<span class="c-keyword">const</span> <span class="c-var">user</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>();
+console.<span class="c-fn">log</span>(<span class="c-var">user</span>.<span class="c-prop">fullName</span>);  <span class="c-comment">// "Katherine Delmer"</span>
+
+<span class="c-comment">// Random Pokémon</span>
+<span class="c-keyword">const</span> <span class="c-var">poke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>();
+console.<span class="c-fn">log</span>(<span class="c-var">poke</span>.<span class="c-prop">name</span>);     <span class="c-comment">// "Charizard"</span>
+
+<span class="c-comment">// A fresh joke every time</span>
+<span class="c-keyword">const</span> <span class="c-var">joke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">joke</span>();
+console.<span class="c-fn">log</span>(<span class="c-var">joke</span>.<span class="c-prop">setup</span>);</pre>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── STATS BAR ──────────────────────────────────────────── -->
+  <section class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num" data-target="800">0</span>
+      <span class="stat-label">Pokémon</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="300">0</span>
+      <span class="stat-label">Anime Quotes</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="500">0</span>
+      <span class="stat-label">Jokes</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="0">0</span>
+      <span class="stat-label" id="dep-label">Dependencies</span>
+    </div>
+  </section>
+
+  <!-- ── USE CASES ─────────────────────────────────────────── -->
+  <section class="section" id="usecases">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">// Use Cases</span>
+        <h2 class="section-title">Built for real workflows</h2>
+        <p class="section-desc">From seeding databases to building demo apps — fakedata fits into any stage of your
+          pipeline.</p>
+      </div>
+      <div class="usecases-grid">
+
+        <div class="usecase-card" data-delay="0">
+          <div class="uc-icon-wrap">
+            <svg class="uc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 7c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z" />
+              <path d="M8 11h8M8 15h4" />
+            </svg>
+          </div>
+          <h3>Database Seeding</h3>
+          <p>Seed development databases with thousands of realistic user records, addresses, and employment data in
+            seconds.</p>
+          <div class="uc-code-block">
+            <pre><span class="c-keyword">const</span> <span class="c-var">users</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">users</span>(<span class="c-num">1000</span>);
+<span class="c-var">db</span>.<span class="c-fn">insertMany</span>(<span class="c-str">'users'</span>, <span class="c-var">users</span>);</pre>
+          </div>
+        </div>
+
+        <div class="usecase-card" data-delay="50">
+          <div class="uc-icon-wrap">
+            <svg class="uc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+              <rect x="9" y="3" width="6" height="4" rx="1" />
+              <path d="M9 12h6M9 16h4" />
+            </svg>
+          </div>
+          <h3>Unit & Integration Testing</h3>
+          <p>Replace hardcoded fixtures with dynamic, schema-compliant test data. Run your tests against varied inputs
+            every time.</p>
+          <div class="uc-code-block">
+            <pre><span class="c-fn">test</span>(<span class="c-str">'validates user schema'</span>, () <span class="c-op">=></span> {
+  <span class="c-keyword">const</span> <span class="c-var">u</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>();
+  <span class="c-fn">expect</span>(<span class="c-var">u</span>.<span class="c-prop">email</span>).<span class="c-fn">toMatch</span>(<span class="c-var">/@/</span>);
+});</pre>
+          </div>
+        </div>
+
+        <div class="usecase-card" data-delay="100">
+          <div class="uc-icon-wrap">
+            <svg class="uc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="3" width="20" height="14" rx="2" />
+              <path d="M8 21h8M12 17v4" />
+            </svg>
+          </div>
+          <h3>UI Prototyping</h3>
+          <p>Build realistic-looking UIs without a backend. Use real names, cities, and emails to present polished demos
+            to stakeholders.</p>
+          <div class="uc-code-block">
+            <pre><span class="c-comment">// Python — fill demo cards</span>
+<span class="c-keyword">import</span> <span class="c-var">fakedata</span>
+<span class="c-var">card</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">creditcard</span>()
+<span class="c-fn">render_card</span>(<span class="c-var">card</span>)</pre>
+          </div>
+        </div>
+
+        <div class="usecase-card" data-delay="150">
+          <div class="uc-icon-wrap">
+            <svg class="uc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <h3>ML Training Datasets</h3>
+          <p>Generate synthetic training data for NLP models, chatbot conversations, and classification tasks with
+            structured outputs.</p>
+          <div class="uc-code-block">
+            <pre><span class="c-comment"># Generate 10k training samples</span>
+<span class="c-var">samples</span> <span class="c-op">=</span> [
+  <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">joke</span>()
+  <span class="c-keyword">for</span> <span class="c-var">_</span> <span class="c-keyword">in</span> <span class="c-fn">range</span>(<span class="c-num">10_000</span>)
+]</pre>
+          </div>
+        </div>
+
+        <div class="usecase-card" data-delay="200">
+          <div class="uc-icon-wrap">
+            <svg class="uc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </div>
+          <h3>Demo & Presentation Data</h3>
+          <p>Instantly populate dashboards and reports with believable user profiles, resumes, and contact information
+            for client demos.</p>
+          <div class="uc-code-block">
+            <pre><span class="c-keyword">const</span> <span class="c-var">resumes</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>
+  .<span class="c-var">data</span>.<span class="c-fn">resume</span>(<span class="c-num">10</span>);
+<span class="c-fn">renderDashboard</span>(<span class="c-var">resumes</span>);</pre>
+          </div>
+        </div>
+
+        <div class="usecase-card" data-delay="250">
+          <div class="uc-icon-wrap">
+            <svg class="uc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+            </svg>
+          </div>
+          <h3>Content & Chatbots</h3>
+          <p>Power chatbots, content generation scripts, and Slack bots with curated jokes, facts, anime quotes, and
+            fortunes.</p>
+          <div class="uc-code-block">
+            <pre><span class="c-comment">// Daily fact bot</span>
+<span class="c-keyword">const</span> <span class="c-var">q</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">anime</span>.<span class="c-fn">quote</span>();
+<span class="c-var">slack</span>.<span class="c-fn">post</span>(<span class="c-var">q</span>.<span class="c-prop">quote</span>);</pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── LIVE DEMO ──────────────────────────────────────────── -->
+  <section class="section section-dark" id="demo">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">// Live Generator</span>
+        <h2 class="section-title">Try it instantly</h2>
+        <p class="section-desc">Click any card to generate fresh data. No install required — running purely client-side.
+        </p>
+      </div>
+      <div class="demo-grid">
+        <div class="demo-card" id="demo-user">
+          <div class="demo-card-header">
+            <span class="demo-card-label"> User Profile</span>
+            <button class="refresh-btn" onclick="genUser()">↻ Generate</button>
+          </div>
+          <pre class="demo-output" id="out-user">// Click Generate</pre>
+        </div>
+        <div class="demo-card" id="demo-pokemon">
+          <div class="demo-card-header">
+            <span class="demo-card-label"> Pokémon</span>
+            <button class="refresh-btn" onclick="genPokemon()">↻ Generate</button>
+          </div>
+          <pre class="demo-output" id="out-pokemon">// Click Generate</pre>
+        </div>
+        <div class="demo-card" id="demo-joke">
+          <div class="demo-card-header">
+            <span class="demo-card-label"> Joke</span>
+            <button class="refresh-btn" onclick="genJoke()">↻ Generate</button>
+          </div>
+          <pre class="demo-output" id="out-joke">// Click Generate</pre>
+        </div>
+        <div class="demo-card" id="demo-anime">
+          <div class="demo-card-header">
+            <span class="demo-card-label"> Anime Quote</span>
+            <button class="refresh-btn" onclick="genAnime()">↻ Generate</button>
+          </div>
+          <pre class="demo-output" id="out-anime">// Click Generate</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── INSTALL ────────────────────────────────────────────── -->
+  <section class="section" id="install">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">// Installation</span>
+        <h2 class="section-title">Three runtimes, one API</h2>
+      </div>
+      <div class="install-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="install-card">
+          <div class="install-card-header">
+            <div class="lang-badge node">Node.js</div>
+            <span class="pkg-name">@abhay557/fakedata</span>
+          </div>
+          <div class="code-snippet">
+            <code>npm install @abhay557/fakedata</code>
+            <button class="copy-btn-sm" onclick="copyText('npm install @abhay557/fakedata', this)">Copy</button>
+          </div>
+          <pre class="lang-example"><span class="c-keyword">const</span> <span class="c-var">fd</span> <span class="c-op">=</span> <span class="c-fn">require</span>(<span class="c-str">'@abhay557/fakedata'</span>);
+<span class="c-var">fd</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>();
+<span class="c-var">fd</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>();
+<span class="c-var">fd</span>.<span class="c-var">anime</span>.<span class="c-fn">quote</span>();
+<span class="c-var">fd</span>.<span class="c-var">animals</span>.<span class="c-fn">random_animal</span>();</pre>
+        </div>
+        <div class="install-card">
+          <div class="install-card-header">
+            <div class="lang-badge ts">TypeScript</div>
+            <span class="pkg-name">@abhay557/fakedata</span>
+          </div>
+          <div class="code-snippet">
+            <code>npm install @abhay557/fakedata</code>
+            <button class="copy-btn-sm" onclick="copyText('npm install @abhay557/fakedata', this)">Copy</button>
+          </div>
+          <pre class="lang-example"><span class="c-keyword">import</span> <span class="c-var">fakedata</span> <span class="c-keyword">from</span> <span class="c-str">'@abhay557/fakedata'</span>;
+<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>();
+<span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>();
+<span class="c-var">fakedata</span>.<span class="c-var">anime</span>.<span class="c-fn">quote</span>();
+<span class="c-var">fakedata</span>.<span class="c-var">animals</span>.<span class="c-fn">random_animal</span>();</pre>
+        </div>
+        <div class="install-card">
+          <div class="install-card-header">
+            <div class="lang-badge python">Python</div>
+            <span class="pkg-name">fakedata-python</span>
+          </div>
+          <div class="code-snippet">
+            <code>pip install fakedata-python</code>
+            <button class="copy-btn-sm" onclick="copyText('pip install fakedata-python', this)">Copy</button>
+          </div>
+          <pre class="lang-example"><span class="c-keyword">import</span> <span class="c-var">fakedata</span>
+<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>()
+<span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>()
+<span class="c-var">fakedata</span>.<span class="c-var">anime</span>.<span class="c-fn">quote</span>()
+<span class="c-var">fakedata</span>.<span class="c-var">animals</span>.<span class="c-fn">random_animal</span>()</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── API TEASER ─────────────────────────────────────────── -->
+  <section class="section section-cta">
+    <div class="container">
+      <div class="cta-inner">
+        <div class="cta-text">
+          <h2>Explore the full API</h2>
+          <p>Interactive playground with live responses, endpoint explorer, and copy-ready code snippets.</p>
+        </div>
+        <a href="api/index.html" class="btn-primary-lg">Open Docs →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span class="logo-bracket">{</span>fakedata<span class="logo-bracket">}</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/abhay557/fakedata" target="_blank">GitHub</a>
+        <a href="https://www.npmjs.com/package/@abhay557/fakedata" target="_blank">NPM</a>
+        <a href="https://pypi.org/project/fakedata-python/" target="_blank">PyPI</a>
+        <a href="api/index.html">Docs</a>
+      </div>
+      <p class="footer-copy">MIT License · Built by <a href="https://github.com/abhay557" target="_blank">abhay557</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
