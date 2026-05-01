@@ -686,6 +686,88 @@ def apply_missing_data(obj, rate, protected_fields=None):
     return result
 
 
+# ─── Digital Footprint (Phase 3) ────────────────────────────────────────────
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/{v}.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/{v}.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/{v}.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:{v}.0) Gecko/20100101 Firefox/{v}.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/17.0 Safari/605.1.15',
+    'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/{v}.0.0.0 Mobile Safari/537.36',
+]
+
+BROWSERS = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera', 'Brave']
+OS_OPTIONS = ['Windows 11', 'Windows 10', 'macOS Sonoma', 'macOS Ventura', 'Ubuntu 24.04', 'Fedora 40', 'iOS 17', 'Android 14', 'Android 13']
+REFERRERS = ['google.com', 'facebook.com', 'twitter.com', 'linkedin.com', 'instagram.com', 'reddit.com', 'direct', 'email', 'youtube.com', 'tiktok.com']
+
+
+def generate_digital_footprint(age):
+    import datetime
+    now = datetime.datetime.now(datetime.timezone.utc)
+
+    # Account creation: 1 month to 10 years ago
+    max_months_ago = 48 if age < 25 else 84 if age < 40 else 120
+    months_ago = random.randint(1, max_months_ago)
+    created_at = now - datetime.timedelta(days=months_ago * 30)
+
+    # Last login: 0 to 30 days ago
+    days_ago_login = random.randint(0, 30)
+    last_login = now - datetime.timedelta(days=days_ago_login)
+
+    # Last password change: 1 to 18 months ago
+    months_ago_pwd = random.randint(1, 18)
+    last_pwd_change = now - datetime.timedelta(days=months_ago_pwd * 30)
+
+    # Browser version
+    browser_version = random.randint(100, 129)
+    ua = get_random(USER_AGENTS).replace('{v}', str(browser_version))
+
+    # Session data
+    avg_session = round(clamp(normal_random(25 if age < 30 else 15, 8), 1, 120), 1)
+    sessions_week = round(clamp(normal_random(12 if age < 30 else 8 if age < 50 else 4, 3), 0, 30))
+    total_sessions = round(sessions_week * (months_ago * 4.3))
+
+    two_fa = random.random() < (0.6 if age < 35 else 0.35)
+
+    ui_languages = ['en', 'en', 'en', 'es', 'fr', 'de', 'pt', 'ja', 'zh', 'ko', 'hi', 'ar']
+
+    return {
+        "accountCreatedAt": created_at.isoformat(),
+        "lastLoginAt": last_login.isoformat(),
+        "lastPasswordChangeAt": last_pwd_change.isoformat(),
+        "userAgent": ua,
+        "browser": get_random(BROWSERS),
+        "os": get_random(OS_OPTIONS),
+        "referrer": get_random(REFERRERS),
+        "avgSessionMinutes": avg_session,
+        "sessionsPerWeek": sessions_week,
+        "totalSessions": total_sessions,
+        "twoFactorEnabled": two_fa,
+        "preferredLanguage": get_random(ui_languages),
+        "accountStatus": get_random(['active', 'active', 'active', 'active', 'inactive', 'suspended']),
+        "verifiedEmail": random.random() < 0.85,
+        "verifiedPhone": random.random() < 0.6
+    }
+
+
+# ─── Flatten Utility (Phase 3 - for CSV/DataFrame export) ───────────────────
+def flatten_object(obj, prefix=''):
+    """Flattens a nested dict into a single-level dict with dot-separated keys."""
+    flat = {}
+    for key, value in obj.items():
+        full_key = f"{prefix}.{key}" if prefix else key
+        if value is None:
+            flat[full_key] = ''
+        elif isinstance(value, list):
+            flat[full_key] = ';'.join(str(v) for v in value)
+        elif isinstance(value, dict):
+            flat.update(flatten_object(value, full_key))
+        else:
+            flat[full_key] = value
+    return flat
+
+
 # ─── Main User Generator ───────────────────────────────────────────────────
 def generate_single_user(id_index=None):
     import datetime
@@ -726,6 +808,9 @@ def generate_single_user(id_index=None):
 
     # Phase 2: Social & behavioral profile
     social = generate_social(age, employment)
+
+    # Phase 3: Digital footprint
+    digital_footprint = generate_digital_footprint(age)
 
     # Card info
     card_number = random.randint(10**15, 10**16 - 1)
@@ -810,6 +895,7 @@ def generate_single_user(id_index=None):
         "financial": financial,
         "health": health,
         "social": social,
+        "digitalFootprint": digital_footprint,
         "bank": {
             "nameOnCard": f"{first_name} {middle_name} {last_name}",
             "cardNumber": str(card_number),
@@ -829,10 +915,15 @@ def user(options=None):
     Args:
         options: Optional dict with:
             - missing_rate (float): Probability (0-1) that each field becomes null
+            - seed (int): Random seed for reproducibility
     """
     if options is None:
         options = {}
+    if 'seed' in options and options['seed'] is not None:
+        random.seed(options['seed'])
     u = generate_single_user()
+    if 'seed' in options and options['seed'] is not None:
+        random.seed()  # reset to system entropy
     if options.get('missing_rate', 0) > 0:
         return apply_missing_data(u, options['missing_rate'])
     return u
@@ -845,17 +936,54 @@ def users(count=10, options=None):
         count: Number of users to generate
         options: Optional dict with:
             - missing_rate (float): Probability (0-1) that each field becomes null
-            - seed (int): Random seed for reproducibility (reserved for Phase 3)
+            - seed (int): Random seed for reproducibility
     """
     if options is None:
         options = {}
+    if 'seed' in options and options['seed'] is not None:
+        random.seed(options['seed'])
     result = []
     for i in range(count):
         u = generate_single_user(i + 1)
         if options.get('missing_rate', 0) > 0:
             u = apply_missing_data(u, options['missing_rate'])
         result.append(u)
+    if 'seed' in options and options['seed'] is not None:
+        random.seed()  # reset to system entropy
     return result
+
+
+def users_to_csv(count=10, options=None):
+    """Generate users and export as CSV string.
+    
+    Nested objects are flattened with dot-separated keys. Arrays are semicolon-joined.
+    """
+    import io, csv
+    data_list = users(count, options)
+    flat_rows = [flatten_object(u) for u in data_list]
+    headers = list(flat_rows[0].keys())
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=headers, quoting=csv.QUOTE_ALL)
+    writer.writeheader()
+    for row in flat_rows:
+        writer.writerow({k: str(v) if v is not None else '' for k, v in row.items()})
+    return output.getvalue()
+
+
+def users_to_json(count=10, options=None):
+    """Generate users and export as a formatted JSON string."""
+    import json
+    return json.dumps(users(count, options), indent=2)
+
+
+def users_flat(count=10, options=None):
+    """Generate users as flat dicts (for pandas DataFrame conversion).
+    
+    Usage:
+        import pandas as pd
+        df = pd.DataFrame(data.users_flat(1000))
+    """
+    return [flatten_object(u) for u in users(count, options)]
 
 
 def get_email():

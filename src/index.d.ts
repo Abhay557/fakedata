@@ -125,12 +125,33 @@ export namespace data {
         pet: string;
     }
 
+    export interface DigitalFootprint {
+        accountCreatedAt: string;
+        lastLoginAt: string;
+        lastPasswordChangeAt: string;
+        userAgent: string;
+        browser: string;
+        os: string;
+        referrer: string;
+        avgSessionMinutes: number;
+        sessionsPerWeek: number;
+        totalSessions: number;
+        twoFactorEnabled: boolean;
+        preferredLanguage: string;
+        accountStatus: "active" | "inactive" | "suspended";
+        verifiedEmail: boolean;
+        verifiedPhone: boolean;
+    }
+
     export interface UserOptions {
         /** Probability (0-1) that each leaf field becomes null. For ML missing data simulation. */
         missing_rate?: number;
-        /** Random seed for reproducibility (reserved for Phase 3). */
+        /** Random seed for reproducibility. Same seed = identical output. */
         seed?: number;
     }
+
+    /** Flat user record with dot-separated keys (for CSV/DataFrame usage). */
+    export type FlatUser = Record<string, string | number | boolean>;
 
     export interface User {
         id: string;
@@ -158,6 +179,7 @@ export namespace data {
         financial: Financial;
         health: Health;
         social: Social;
+        digitalFootprint: DigitalFootprint;
         bank: Bank;
         hobbies: string[];
         technology_profile: TechnologyProfile;
@@ -184,6 +206,9 @@ export namespace data {
 
     export function user(options?: UserOptions): User;
     export function users(count?: number, options?: UserOptions): User[];
+    export function usersToCSV(count?: number, options?: UserOptions): string;
+    export function usersToJSON(count?: number, options?: UserOptions): string;
+    export function usersFlat(count?: number, options?: UserOptions): FlatUser[];
     export function getEmail(): { email: string };
     export function getUsername(): { username: string };
     export function getPassword(length?: number): { password: string };
