@@ -27,9 +27,14 @@ logs/
 fakedata/
 fakedata_python.egg-info/
 test_python.py
+test_py.py
 pyproject.toml
 dist/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Raw data and docs
+newdata/
+website/

@@ -21,6 +21,30 @@ A high-performance, **zero-dependency** synthetic data generation engine, availa
 
 ---
 
+##  Node.js / TypeScript Implementation
+
+### Installation
+```bash
+npm install @abhay557/fakedata
+```
+
+### Quick Start
+```javascript
+const { data } = require('@abhay557/fakedata');
+
+// Generate deterministic users with a 5% missing data rate (null injection)
+const users = data.users(1000, { seed: 42, missing_rate: 0.05 });
+
+// Export directly to CSV format
+const csvString = data.usersToCSV(1000, { seed: 42 });
+
+// Time-series activity data
+const ts = data.userTimeSeries({ days: 30, eventsPerDay: 8 });
+console.log(`Generated ${ts.activity.length} events for ${ts.user.fullName}`);
+```
+
+---
+
 ##  Python Implementation
 
 ### Installation
@@ -43,30 +67,6 @@ print(df.head())
 # Create time-series activity data
 ts = data.user_time_series({"days": 30, "events_per_day": 8})
 print(f"Generated {len(ts['activity'])} events for {ts['user']['fullName']}")
-```
-
----
-
-##  Node.js / TypeScript Implementation
-
-### Installation
-```bash
-npm install @abhay557/fakedata
-```
-
-### Quick Start
-```javascript
-const { data } = require('@abhay557/fakedata');
-
-// Generate deterministic users with a 5% missing data rate (null injection)
-const users = data.users(1000, { seed: 42, missing_rate: 0.05 });
-
-// Export directly to CSV format
-const csvString = data.usersToCSV(1000, { seed: 42 });
-
-// Time-series activity data
-const ts = data.userTimeSeries({ days: 30, eventsPerDay: 8 });
-console.log(`Generated ${ts.activity.length} events for ${ts.user.fullName}`);
 ```
 
 ---
@@ -155,15 +155,6 @@ identity(9) → personal(6) → network(3) → address(7) → demographics(5)
 → education(7) → employment(10) → financial(8) → health(16)
 → social(9) → digitalFootprint(15) → bank(5) → lifestyle(9)
 ```
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! If you'd like to add new datasets or modules:
-1. Ensure changes are implemented in **both** `src/` (JS) and `fakedata/` (Python).
-2. Maintain naming parity for methods and JSON keys.
-3. Submit a Pull Request.
 
 ---
 
