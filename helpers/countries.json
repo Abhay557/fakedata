@@ -1,0 +1,1012 @@
+[
+    {
+        "name": "United States",
+        "code": "US",
+        "universities": 2349
+    },
+    {
+        "name": "Japan",
+        "code": "JP",
+        "universities": 572
+    },
+    {
+        "name": "India",
+        "code": "IN",
+        "universities": 474
+    },
+    {
+        "name": "China",
+        "code": "CN",
+        "universities": 398
+    },
+    {
+        "name": "Germany",
+        "code": "DE",
+        "universities": 319
+    },
+    {
+        "name": "Russian Federation",
+        "code": "RU",
+        "universities": 309
+    },
+    {
+        "name": "France",
+        "code": "FR",
+        "universities": 294
+    },
+    {
+        "name": "Korea, Republic of",
+        "code": "KR",
+        "universities": 244
+    },
+    {
+        "name": "United Kingdom",
+        "code": "GB",
+        "universities": 193
+    },
+    {
+        "name": "Iran",
+        "code": "IR",
+        "universities": 193
+    },
+    {
+        "name": "Indonesia",
+        "code": "ID",
+        "universities": 192
+    },
+    {
+        "name": "Brazil",
+        "code": "BR",
+        "universities": 189
+    },
+    {
+        "name": "Turkiye",
+        "code": "TR",
+        "universities": 186
+    },
+    {
+        "name": "Mexico",
+        "code": "MX",
+        "universities": 166
+    },
+    {
+        "name": "Canada",
+        "code": "CA",
+        "universities": 156
+    },
+    {
+        "name": "Malaysia",
+        "code": "MY",
+        "universities": 145
+    },
+    {
+        "name": "Poland",
+        "code": "PL",
+        "universities": 137
+    },
+    {
+        "name": "Pakistan",
+        "code": "PK",
+        "universities": 136
+    },
+    {
+        "name": "Argentina",
+        "code": "AR",
+        "universities": 121
+    },
+    {
+        "name": "Philippines",
+        "code": "PH",
+        "universities": 118
+    },
+    {
+        "name": "Nigeria",
+        "code": "NG",
+        "universities": 115
+    },
+    {
+        "name": "Colombia",
+        "code": "CO",
+        "universities": 103
+    },
+    {
+        "name": "Spain",
+        "code": "ES",
+        "universities": 96
+    },
+    {
+        "name": "Italy",
+        "code": "IT",
+        "universities": 93
+    },
+    {
+        "name": "Taiwan, Province of China",
+        "code": "TW",
+        "universities": 86
+    },
+    {
+        "name": "Switzerland",
+        "code": "CH",
+        "universities": 76
+    },
+    {
+        "name": "Ukraine",
+        "code": "UA",
+        "universities": 75
+    },
+    {
+        "name": "Bangladesh",
+        "code": "BD",
+        "universities": 75
+    },
+    {
+        "name": "Peru",
+        "code": "PE",
+        "universities": 67
+    },
+    {
+        "name": "Thailand",
+        "code": "TH",
+        "universities": 67
+    },
+    {
+        "name": "Portugal",
+        "code": "PT",
+        "universities": 66
+    },
+    {
+        "name": "Chile",
+        "code": "CL",
+        "universities": 65
+    },
+    {
+        "name": "Saudi Arabia",
+        "code": "SA",
+        "universities": 63
+    },
+    {
+        "name": "Romania",
+        "code": "RO",
+        "universities": 62
+    },
+    {
+        "name": "Australia",
+        "code": "AU",
+        "universities": 58
+    },
+    {
+        "name": "Belgium",
+        "code": "BE",
+        "universities": 50
+    },
+    {
+        "name": "Kenya",
+        "code": "KE",
+        "universities": 49
+    },
+    {
+        "name": "Viet Nam",
+        "code": "VN",
+        "universities": 49
+    },
+    {
+        "name": "Netherlands",
+        "code": "NL",
+        "universities": 48
+    },
+    {
+        "name": "Iraq",
+        "code": "IQ",
+        "universities": 47
+    },
+    {
+        "name": "Austria",
+        "code": "AT",
+        "universities": 46
+    },
+    {
+        "name": "Egypt",
+        "code": "EG",
+        "universities": 44
+    },
+    {
+        "name": "Ecuador",
+        "code": "EC",
+        "universities": 43
+    },
+    {
+        "name": "Hungary",
+        "code": "HU",
+        "universities": 42
+    },
+    {
+        "name": "Afghanistan",
+        "code": "AF",
+        "universities": 40
+    },
+    {
+        "name": "United Arab Emirates",
+        "code": "AE",
+        "universities": 37
+    },
+    {
+        "name": "Bulgaria",
+        "code": "BG",
+        "universities": 37
+    },
+    {
+        "name": "Venezuela, Bolivarian Republic of",
+        "code": "VE",
+        "universities": 37
+    },
+    {
+        "name": "Sweden",
+        "code": "SE",
+        "universities": 36
+    },
+    {
+        "name": "Finland",
+        "code": "FI",
+        "universities": 35
+    },
+    {
+        "name": "Sudan",
+        "code": "SD",
+        "universities": 35
+    },
+    {
+        "name": "Belarus",
+        "code": "BY",
+        "universities": 34
+    },
+    {
+        "name": "Denmark",
+        "code": "DK",
+        "universities": 34
+    },
+    {
+        "name": "Greece",
+        "code": "GR",
+        "universities": 33
+    },
+    {
+        "name": "Morocco",
+        "code": "MA",
+        "universities": 33
+    },
+    {
+        "name": "Azerbaijan",
+        "code": "AZ",
+        "universities": 32
+    },
+    {
+        "name": "Costa Rica",
+        "code": "CR",
+        "universities": 32
+    },
+    {
+        "name": "Ghana",
+        "code": "GH",
+        "universities": 31
+    },
+    {
+        "name": "Bolivia, Plurinational State of",
+        "code": "BO",
+        "universities": 31
+    },
+    {
+        "name": "Slovakia",
+        "code": "SK",
+        "universities": 31
+    },
+    {
+        "name": "Czech Republic",
+        "code": "CZ",
+        "universities": 30
+    },
+    {
+        "name": "Ethiopia",
+        "code": "ET",
+        "universities": 30
+    },
+    {
+        "name": "Algeria",
+        "code": "DZ",
+        "universities": 29
+    },
+    {
+        "name": "Jordan",
+        "code": "JO",
+        "universities": 29
+    },
+    {
+        "name": "Kazakhstan",
+        "code": "KZ",
+        "universities": 29
+    },
+    {
+        "name": "South Africa",
+        "code": "ZA",
+        "universities": 29
+    },
+    {
+        "name": "Ireland",
+        "code": "IE",
+        "universities": 27
+    },
+    {
+        "name": "Sri Lanka",
+        "code": "LK",
+        "universities": 27
+    },
+    {
+        "name": "Dominican Republic",
+        "code": "DO",
+        "universities": 26
+    },
+    {
+        "name": "El Salvador",
+        "code": "SV",
+        "universities": 25
+    },
+    {
+        "name": "Puerto Rico",
+        "code": "PR",
+        "universities": 25
+    },
+    {
+        "name": "Israel",
+        "code": "IL",
+        "universities": 24
+    },
+    {
+        "name": "Latvia",
+        "code": "LV",
+        "universities": 24
+    },
+    {
+        "name": "Lebanon",
+        "code": "LB",
+        "universities": 24
+    },
+    {
+        "name": "Norway",
+        "code": "NO",
+        "universities": 24
+    },
+    {
+        "name": "Uzbekistan",
+        "code": "UZ",
+        "universities": 23
+    },
+    {
+        "name": "Cambodia",
+        "code": "KH",
+        "universities": 21
+    },
+    {
+        "name": "Tanzania, United Republic of",
+        "code": "TZ",
+        "universities": 20
+    },
+    {
+        "name": "Tunisia",
+        "code": "TN",
+        "universities": 19
+    },
+    {
+        "name": "Uganda",
+        "code": "UG",
+        "universities": 18
+    },
+    {
+        "name": "Singapore",
+        "code": "SG",
+        "universities": 18
+    },
+    {
+        "name": "Cyprus",
+        "code": "CY",
+        "universities": 17
+    },
+    {
+        "name": "Lithuania",
+        "code": "LT",
+        "universities": 17
+    },
+    {
+        "name": "Nicaragua",
+        "code": "NI",
+        "universities": 17
+    },
+    {
+        "name": "Panama",
+        "code": "PA",
+        "universities": 17
+    },
+    {
+        "name": "Somalia",
+        "code": "SO",
+        "universities": 17
+    },
+    {
+        "name": "Albania",
+        "code": "AL",
+        "universities": 16
+    },
+    {
+        "name": "Bosnia and Herzegovina",
+        "code": "BA",
+        "universities": 16
+    },
+    {
+        "name": "Palestine, State of",
+        "code": "PS",
+        "universities": 16
+    },
+    {
+        "name": "Georgia",
+        "code": "GE",
+        "universities": 15
+    },
+    {
+        "name": "Hong Kong",
+        "code": "HK",
+        "universities": 15
+    },
+    {
+        "name": "Syrian Arab Republic",
+        "code": "SY",
+        "universities": 15
+    },
+    {
+        "name": "Zimbabwe",
+        "code": "ZW",
+        "universities": 15
+    },
+    {
+        "name": "Paraguay",
+        "code": "PY",
+        "universities": 14
+    },
+    {
+        "name": "Cuba",
+        "code": "CU",
+        "universities": 13
+    },
+    {
+        "name": "Kyrgyzstan",
+        "code": "KG",
+        "universities": 13
+    },
+    {
+        "name": "Serbia",
+        "code": "RS",
+        "universities": 13
+    },
+    {
+        "name": "Yemen",
+        "code": "YE",
+        "universities": 13
+    },
+    {
+        "name": "Armenia",
+        "code": "AM",
+        "universities": 12
+    },
+    {
+        "name": "Bahrain",
+        "code": "BH",
+        "universities": 12
+    },
+    {
+        "name": "Croatia",
+        "code": "HR",
+        "universities": 12
+    },
+    {
+        "name": "Moldova, Republic of",
+        "code": "MD",
+        "universities": 12
+    },
+    {
+        "name": "Nepal",
+        "code": "NP",
+        "universities": 12
+    },
+    {
+        "name": "New Zealand",
+        "code": "NZ",
+        "universities": 12
+    },
+    {
+        "name": "Guatemala",
+        "code": "GT",
+        "universities": 11
+    },
+    {
+        "name": "Libya",
+        "code": "LY",
+        "universities": 11
+    },
+    {
+        "name": "Mongolia",
+        "code": "MN",
+        "universities": 11
+    },
+    {
+        "name": "Oman",
+        "code": "OM",
+        "universities": 11
+    },
+    {
+        "name": "Rwanda",
+        "code": "RW",
+        "universities": 11
+    },
+    {
+        "name": "Cameroon",
+        "code": "CM",
+        "universities": 10
+    },
+    {
+        "name": "Congo, the Democratic Republic of the",
+        "code": "CD",
+        "universities": 10
+    },
+    {
+        "name": "Estonia",
+        "code": "EE",
+        "universities": 10
+    },
+    {
+        "name": "Iceland",
+        "code": "IS",
+        "universities": 10
+    },
+    {
+        "name": "Senegal",
+        "code": "SN",
+        "universities": 10
+    },
+    {
+        "name": "Botswana",
+        "code": "BW",
+        "universities": 9
+    },
+    {
+        "name": "Honduras",
+        "code": "HN",
+        "universities": 9
+    },
+    {
+        "name": "North Macedonia",
+        "code": "MK",
+        "universities": 9
+    },
+    {
+        "name": "Angola",
+        "code": "AO",
+        "universities": 8
+    },
+    {
+        "name": "Kuwait",
+        "code": "KW",
+        "universities": 8
+    },
+    {
+        "name": "Malawi",
+        "code": "MW",
+        "universities": 8
+    },
+    {
+        "name": "Mozambique",
+        "code": "MZ",
+        "universities": 8
+    },
+    {
+        "name": "Zambia",
+        "code": "ZM",
+        "universities": 7
+    },
+    {
+        "name": "Haiti",
+        "code": "HT",
+        "universities": 6
+    },
+    {
+        "name": "Madagascar",
+        "code": "MG",
+        "universities": 6
+    },
+    {
+        "name": "Uruguay",
+        "code": "UY",
+        "universities": 6
+    },
+    {
+        "name": "Belize",
+        "code": "BZ",
+        "universities": 5
+    },
+    {
+        "name": "Myanmar",
+        "code": "MM",
+        "universities": 5
+    },
+    {
+        "name": "Holy See (Vatican City State)",
+        "code": "VA",
+        "universities": 5
+    },
+    {
+        "name": "Kosovo",
+        "code": "XK",
+        "universities": 5
+    },
+    {
+        "name": "Namibia",
+        "code": "NA",
+        "universities": 5
+    },
+    {
+        "name": "Papua New Guinea",
+        "code": "PG",
+        "universities": 5
+    },
+    {
+        "name": "Qatar",
+        "code": "QA",
+        "universities": 5
+    },
+    {
+        "name": "Côte d'Ivoire",
+        "code": "CI",
+        "universities": 4
+    },
+    {
+        "name": "Fiji",
+        "code": "FJ",
+        "universities": 4
+    },
+    {
+        "name": "Guinea",
+        "code": "GN",
+        "universities": 4
+    },
+    {
+        "name": "Guyana",
+        "code": "GY",
+        "universities": 4
+    },
+    {
+        "name": "Macao",
+        "code": "MO",
+        "universities": 4
+    },
+    {
+        "name": "Malta",
+        "code": "MT",
+        "universities": 4
+    },
+    {
+        "name": "Saint Kitts and Nevis",
+        "code": "KN",
+        "universities": 4
+    },
+    {
+        "name": "Sierra Leone",
+        "code": "SL",
+        "universities": 4
+    },
+    {
+        "name": "Slovenia",
+        "code": "SI",
+        "universities": 4
+    },
+    {
+        "name": "Benin",
+        "code": "BJ",
+        "universities": 3
+    },
+    {
+        "name": "Brunei Darussalam",
+        "code": "BN",
+        "universities": 3
+    },
+    {
+        "name": "Burundi",
+        "code": "BI",
+        "universities": 3
+    },
+    {
+        "name": "Dominica",
+        "code": "DM",
+        "universities": 3
+    },
+    {
+        "name": "Gambia",
+        "code": "GM",
+        "universities": 3
+    },
+    {
+        "name": "Jamaica",
+        "code": "JM",
+        "universities": 3
+    },
+    {
+        "name": "Maldives",
+        "code": "MV",
+        "universities": 3
+    },
+    {
+        "name": "Tajikistan",
+        "code": "TJ",
+        "universities": 3
+    },
+    {
+        "name": "Trinidad and Tobago",
+        "code": "TT",
+        "universities": 3
+    },
+    {
+        "name": "Antigua and Barbuda",
+        "code": "AG",
+        "universities": 2
+    },
+    {
+        "name": "Cayman Islands",
+        "code": "KY",
+        "universities": 2
+    },
+    {
+        "name": "Lao People's Democratic Republic",
+        "code": "LA",
+        "universities": 2
+    },
+    {
+        "name": "Liechtenstein",
+        "code": "LI",
+        "universities": 2
+    },
+    {
+        "name": "Luxembourg",
+        "code": "LU",
+        "universities": 2
+    },
+    {
+        "name": "Mauritius",
+        "code": "MU",
+        "universities": 2
+    },
+    {
+        "name": "Seychelles",
+        "code": "SC",
+        "universities": 2
+    },
+    {
+        "name": "South Sudan",
+        "code": "SS",
+        "universities": 2
+    },
+    {
+        "name": "Vietnam",
+        "code": "VN",
+        "universities": 2
+    },
+    {
+        "name": "Andorra",
+        "code": "AD",
+        "universities": 1
+    },
+    {
+        "name": "Bahamas",
+        "code": "BS",
+        "universities": 1
+    },
+    {
+        "name": "Barbados",
+        "code": "BB",
+        "universities": 1
+    },
+    {
+        "name": "Bermuda",
+        "code": "BM",
+        "universities": 1
+    },
+    {
+        "name": "Bhutan",
+        "code": "BT",
+        "universities": 1
+    },
+    {
+        "name": "Burkina Faso",
+        "code": "BF",
+        "universities": 1
+    },
+    {
+        "name": "Cape Verde",
+        "code": "CV",
+        "universities": 1
+    },
+    {
+        "name": "Central African Republic",
+        "code": "CF",
+        "universities": 1
+    },
+    {
+        "name": "Chad",
+        "code": "TD",
+        "universities": 1
+    },
+    {
+        "name": "Congo",
+        "code": "CG",
+        "universities": 1
+    },
+    {
+        "name": "Djibouti",
+        "code": "DJ",
+        "universities": 1
+    },
+    {
+        "name": "Equatorial Guinea",
+        "code": "GQ",
+        "universities": 1
+    },
+    {
+        "name": "Eritrea",
+        "code": "ER",
+        "universities": 1
+    },
+    {
+        "name": "Faroe Islands",
+        "code": "FO",
+        "universities": 1
+    },
+    {
+        "name": "French Guiana",
+        "code": "GF",
+        "universities": 1
+    },
+    {
+        "name": "French Polynesia",
+        "code": "PF",
+        "universities": 1
+    },
+    {
+        "name": "Gabon",
+        "code": "GA",
+        "universities": 1
+    },
+    {
+        "name": "Greenland",
+        "code": "GL",
+        "universities": 1
+    },
+    {
+        "name": "Grenada",
+        "code": "GD",
+        "universities": 1
+    },
+    {
+        "name": "Guadeloupe",
+        "code": "GP",
+        "universities": 1
+    },
+    {
+        "name": "Guam",
+        "code": "GU",
+        "universities": 1
+    },
+    {
+        "name": "Korea, Democratic People's Republic of",
+        "code": "KP",
+        "universities": 1
+    },
+    {
+        "name": "Lesotho",
+        "code": "LS",
+        "universities": 1
+    },
+    {
+        "name": "Liberia",
+        "code": "LR",
+        "universities": 1
+    },
+    {
+        "name": "Mali",
+        "code": "ML",
+        "universities": 1
+    },
+    {
+        "name": "Mauritania",
+        "code": "MR",
+        "universities": 1
+    },
+    {
+        "name": "Monaco",
+        "code": "MC",
+        "universities": 1
+    },
+    {
+        "name": "Montenegro",
+        "code": "ME",
+        "universities": 1
+    },
+    {
+        "name": "Montserrat",
+        "code": "MS",
+        "universities": 1
+    },
+    {
+        "name": "New Caledonia",
+        "code": "NC",
+        "universities": 1
+    },
+    {
+        "name": "Niger",
+        "code": "NE",
+        "universities": 1
+    },
+    {
+        "name": "Niue",
+        "code": "NU",
+        "universities": 1
+    },
+    {
+        "name": "Réunion",
+        "code": "RE",
+        "universities": 1
+    },
+    {
+        "name": "Saint Lucia",
+        "code": "LC",
+        "universities": 1
+    },
+    {
+        "name": "Saint Vincent and the Grenadines",
+        "code": "VC",
+        "universities": 1
+    },
+    {
+        "name": "Samoa",
+        "code": "WS",
+        "universities": 1
+    },
+    {
+        "name": "San Marino",
+        "code": "SM",
+        "universities": 1
+    },
+    {
+        "name": "Suriname",
+        "code": "SR",
+        "universities": 1
+    },
+    {
+        "name": "Swaziland",
+        "code": "SZ",
+        "universities": 1
+    },
+    {
+        "name": "Togo",
+        "code": "TG",
+        "universities": 1
+    },
+    {
+        "name": "Turkmenistan",
+        "code": "TM",
+        "universities": 1
+    },
+    {
+        "name": "Turks and Caicos Islands",
+        "code": "TC",
+        "universities": 1
+    },
+    {
+        "name": "Virgin Islands, British",
+        "code": "VG",
+        "universities": 1
+    }
+]
