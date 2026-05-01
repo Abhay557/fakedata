@@ -29,6 +29,9 @@ countries_data = load_data('countries.json')
 # Phase 2 datasets
 healthcare_data = load_data('healthcare.json')
 
+# Phase 4 datasets
+locales_data = load_data('locales.json')
+
 
 # ─── Utility Functions ──────────────────────────────────────────────────────
 def get_random(arr):
@@ -768,14 +771,218 @@ def flatten_object(obj, prefix=''):
     return flat
 
 
+# ─── Schema Override Engine (Phase 4) ───────────────────────────────────────
+def apply_schema_overrides(user_obj, schema):
+    """Applies user-defined schema constraints to a generated user."""
+    if not schema or not isinstance(schema, dict):
+        return user_obj
+
+    # Age override
+    if 'age' in schema:
+        age_s = schema['age']
+        if 'min' in age_s and user_obj['age'] < age_s['min']:
+            user_obj['age'] = age_s['min']
+        if 'max' in age_s and user_obj['age'] > age_s['max']:
+            user_obj['age'] = age_s['max']
+        if 'exact' in age_s:
+            user_obj['age'] = age_s['exact']
+        import datetime
+        cy = datetime.datetime.now().year
+        bm = random.randint(1, 12)
+        bd = random.randint(1, 28)
+        user_obj['birthDate'] = f"{cy - user_obj['age']}-{str(bm).zfill(2)}-{str(bd).zfill(2)}"
+
+    if 'gender' in schema:
+        user_obj['gender'] = schema['gender']
+
+    if 'employment' in schema and 'status' in schema['employment']:
+        user_obj['employment']['status'] = schema['employment']['status']
+
+    if 'education' in schema and 'level' in schema['education']:
+        user_obj['education']['level'] = schema['education']['level']
+
+    if 'financial' in schema:
+        if 'annualIncome' in schema['financial']:
+            fi = schema['financial']['annualIncome']
+            if 'min' in fi and user_obj['financial']['annualIncome'] < fi['min']:
+                user_obj['financial']['annualIncome'] = fi['min']
+            if 'max' in fi and user_obj['financial']['annualIncome'] > fi['max']:
+                user_obj['financial']['annualIncome'] = fi['max']
+
+    if 'health' in schema and 'medicalCondition' in schema['health']:
+        user_obj['health']['medicalCondition'] = schema['health']['medicalCondition']
+
+    if 'address' in schema and 'country' in schema['address']:
+        user_obj['address']['country'] = schema['address']['country']
+
+    if 'height' in schema:
+        if 'min' in schema['height']:
+            user_obj['height'] = max(user_obj['height'], schema['height']['min'])
+        if 'max' in schema['height']:
+            user_obj['height'] = min(user_obj['height'], schema['height']['max'])
+
+    if 'weight' in schema:
+        if 'min' in schema['weight']:
+            user_obj['weight'] = max(user_obj['weight'], schema['weight']['min'])
+        if 'max' in schema['weight']:
+            user_obj['weight'] = min(user_obj['weight'], schema['weight']['max'])
+
+    return user_obj
+
+
+# ─── Locale-Aware Name Selection (Phase 4) ──────────────────────────────────
+LOCALE_PHONE_CODES = {
+    'en': '+1', 'in': '+91', 'jp': '+81', 'kr': '+82',
+    'de': '+49', 'br': '+55', 'ar': '+966', 'fr': '+33'
+}
+
+LOCALE_COUNTRIES = {
+    'en': {'name': 'United States', 'code': 'US'},
+    'in': {'name': 'India', 'code': 'IN'},
+    'jp': {'name': 'Japan', 'code': 'JP'},
+    'kr': {'name': 'South Korea', 'code': 'KR'},
+    'de': {'name': 'Germany', 'code': 'DE'},
+    'br': {'name': 'Brazil', 'code': 'BR'},
+    'ar': {'name': 'Saudi Arabia', 'code': 'SA'},
+    'fr': {'name': 'France', 'code': 'FR'}
+}
+
+
+# ─── Time-Series Activity Generator (Phase 4) ──────────────────────────────
+ACTIVITY_TYPES = ['login', 'page_view', 'purchase', 'search', 'click', 'logout', 'api_call', 'upload', 'download', 'comment']
+PAGE_NAMES = ['/home', '/profile', '/settings', '/dashboard', '/products', '/cart', '/checkout', '/search', '/help', '/about', '/pricing', '/blog']
+
+
+def generate_time_series(user_obj, days=30, avg_events_per_day=8):
+    """Generates time-series activity data for a user over N days."""
+    import datetime
+    events = []
+    now = datetime.datetime.now(datetime.timezone.utc)
+    is_active = user_obj['digitalFootprint']['accountStatus'] == 'active'
+    activity_multiplier = 1.0 if is_active else 0.2
+
+    for d in range(days):
+        day_date = now - datetime.timedelta(days=(days - d))
+        day_of_week = day_date.weekday()  # 0=Mon, 6=Sun
+        is_weekend = day_of_week >= 5
+
+        daily_events = max(0, round(
+            normal_random(avg_events_per_day * activity_multiplier * (0.6 if is_weekend else 1.0), 3)
+        ))
+
+        for _ in range(daily_events):
+            hour = int(clamp(normal_random(14, 4), 0, 23))
+            minute = random.randint(0, 59)
+            second = random.randint(0, 59)
+
+            event_time = day_date.replace(hour=hour, minute=minute, second=second)
+            activity_type = get_random(ACTIVITY_TYPES)
+
+            event = {
+                'userId': user_obj['id'],
+                'timestamp': event_time.isoformat(),
+                'type': activity_type,
+                'page': get_random(PAGE_NAMES),
+                'duration': round(clamp(normal_random(45, 30), 2, 600)) if activity_type == 'page_view' else None,
+                'device': get_random(['desktop', 'mobile', 'tablet']),
+                'ip': user_obj['ip'],
+                'success': random.random() > 0.05,
+            }
+
+            if activity_type == 'purchase':
+                event['amount'] = round(random.uniform(5, 505), 2)
+                event['currency'] = 'USD'
+            if activity_type == 'search':
+                event['query'] = get_random(['laptop', 'shoes', 'phone case', 'headphones', 'book', 'camera', 'jacket', 'watch', 'keyboard', 'monitor'])
+
+            events.append(event)
+
+    events.sort(key=lambda e: e['timestamp'])
+    return events
+
+
+# ─── Anomaly Injection Engine (Phase 4) ──────────────────────────────────────
+def _anomaly_income_spike(u):
+    u['financial']['annualIncome'] = round(u['financial']['annualIncome'] * (5 + random.random() * 10))
+
+def _anomaly_age_outlier(u):
+    u['age'] = get_random([1, 2, 3, 115, 120, 130])
+
+def _anomaly_credit_fraud(u):
+    u['financial']['creditScore'] = get_random([100, 150, 200, 850, 900, 999])
+    u['financial']['debtToIncome'] = round(random.random() * 50 + 10, 2)
+
+def _anomaly_geo_impossible(u):
+    u['address']['coordinates'] = {'latitude': '0.000000', 'longitude': '0.000000'}
+    u['ip'] = '0.0.0.0'
+
+def _anomaly_session(u):
+    u['digitalFootprint']['sessionsPerWeek'] = round(random.random() * 500 + 200)
+    u['digitalFootprint']['avgSessionMinutes'] = round(random.random() * 1000 + 500, 1)
+
+def _anomaly_velocity_attack(u):
+    import datetime
+    u['digitalFootprint']['totalSessions'] = round(random.random() * 100000 + 50000)
+    u['digitalFootprint']['lastLoginAt'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+def _anomaly_data_mismatch(u):
+    u['age'] = 12
+    u['employment']['status'] = 'employed'
+    u['employment']['yearsExperience'] = 30
+    u['financial']['annualIncome'] = 500000
+
+def _anomaly_health_outlier(u):
+    u['health']['bmi'] = get_random([8, 9, 75, 80])
+    u['health']['bloodPressure'] = {'systolic': get_random([40, 300]), 'diastolic': get_random([20, 200])}
+
+ANOMALY_TYPES_PY = [
+    {'type': 'income_spike',    'weight': 20, 'apply': _anomaly_income_spike},
+    {'type': 'age_outlier',     'weight': 10, 'apply': _anomaly_age_outlier},
+    {'type': 'credit_fraud',    'weight': 15, 'apply': _anomaly_credit_fraud},
+    {'type': 'geo_impossible',  'weight': 10, 'apply': _anomaly_geo_impossible},
+    {'type': 'session_anomaly', 'weight': 15, 'apply': _anomaly_session},
+    {'type': 'velocity_attack', 'weight': 10, 'apply': _anomaly_velocity_attack},
+    {'type': 'data_mismatch',   'weight': 10, 'apply': _anomaly_data_mismatch},
+    {'type': 'health_outlier',  'weight': 10, 'apply': _anomaly_health_outlier},
+]
+
+
+def inject_anomalies(users_arr, rate=0.05):
+    """Injects anomalies for fraud/anomaly detection ML training."""
+    import copy
+    result = []
+    for u in users_arr:
+        user_copy = copy.deepcopy(u)
+        if random.random() < rate:
+            idx = weighted_random([a['weight'] for a in ANOMALY_TYPES_PY])
+            anomaly = ANOMALY_TYPES_PY[idx]
+            anomaly['apply'](user_copy)
+            user_copy['_anomaly'] = {'isAnomaly': True, 'type': anomaly['type']}
+        else:
+            user_copy['_anomaly'] = {'isAnomaly': False, 'type': None}
+        result.append(user_copy)
+    return result
+
+
 # ─── Main User Generator ───────────────────────────────────────────────────
-def generate_single_user(id_index=None):
+def generate_single_user(id_index=None, schema=None, locale=None):
     import datetime
 
-    # Core identity
-    first_name = get_random(first_names['names'])
-    middle_name = get_random(middle_names['father'])
-    last_name = get_random(last_names['surnames'])
+    # Locale-aware name selection
+    if locale and locale in locales_data:
+        loc = locales_data[locale]
+        gender_hint = schema.get('gender') if schema else None
+        if not gender_hint:
+            gender_hint = get_random(['male', 'female'])
+        first_name = get_random(loc['first_female'] if gender_hint == 'female' else loc['first_male'])
+        middle_name = get_random(loc['first_male'])
+        last_name = get_random(loc['last'])
+        phone_code = LOCALE_PHONE_CODES.get(locale, '+1')
+    else:
+        first_name = get_random(first_names['names'])
+        middle_name = get_random(middle_names['father'])
+        last_name = get_random(last_names['surnames'])
+        phone_code = '+1'
     email_provider = get_random(emails['mails'])
     card_type = get_random(card_data['cards'])
     domain = get_random(domain_data['domains'])
@@ -861,7 +1068,7 @@ def generate_single_user(id_index=None):
     # Pick a country from the dataset
     country = get_random(countries_data)
 
-    return {
+    result = {
         "id": str(user_id),
         "fullName": f"{first_name} {middle_name} {last_name}",
         "firstName": first_name,
@@ -870,7 +1077,7 @@ def generate_single_user(id_index=None):
         "age": age,
         "gender": get_random(gender_options),
         "email": f"{first_name.lower()}.{last_name.lower()}@{email_provider}",
-        "phone": f"+1 {phone_number}",
+        "phone": f"{phone_code} {phone_number}",
         "username": f"{first_name.lower()}_{user_id}",
         "password": password,
         "birthDate": f"{birth_year}-{str(birth_month).zfill(2)}-{str(birth_day).zfill(2)}",
@@ -907,6 +1114,17 @@ def generate_single_user(id_index=None):
         "technology_profile": tech_profile
     }
 
+    # Phase 4: Apply locale country override
+    if locale and locale in LOCALE_COUNTRIES:
+        result['address']['country'] = LOCALE_COUNTRIES[locale]['name']
+        result['address']['countryCode'] = LOCALE_COUNTRIES[locale]['code']
+
+    # Phase 4: Apply schema overrides
+    if schema:
+        return apply_schema_overrides(result, schema)
+
+    return result
+
 
 # ─── Public API ─────────────────────────────────────────────────────────────
 def user(options=None):
@@ -916,14 +1134,16 @@ def user(options=None):
         options: Optional dict with:
             - missing_rate (float): Probability (0-1) that each field becomes null
             - seed (int): Random seed for reproducibility
+            - schema (dict): Schema constraints {age: {min,max}, gender, ...}
+            - locale (str): Locale code: 'en','in','jp','kr','de','br','ar','fr'
     """
     if options is None:
         options = {}
     if 'seed' in options and options['seed'] is not None:
         random.seed(options['seed'])
-    u = generate_single_user()
+    u = generate_single_user(None, options.get('schema'), options.get('locale'))
     if 'seed' in options and options['seed'] is not None:
-        random.seed()  # reset to system entropy
+        random.seed()
     if options.get('missing_rate', 0) > 0:
         return apply_missing_data(u, options['missing_rate'])
     return u
@@ -937,6 +1157,9 @@ def users(count=10, options=None):
         options: Optional dict with:
             - missing_rate (float): Probability (0-1) that each field becomes null
             - seed (int): Random seed for reproducibility
+            - schema (dict): Schema constraints
+            - locale (str): Locale code
+            - anomaly_rate (float): Fraction of users to inject anomalies into
     """
     if options is None:
         options = {}
@@ -944,13 +1167,33 @@ def users(count=10, options=None):
         random.seed(options['seed'])
     result = []
     for i in range(count):
-        u = generate_single_user(i + 1)
+        u = generate_single_user(i + 1, options.get('schema'), options.get('locale'))
         if options.get('missing_rate', 0) > 0:
             u = apply_missing_data(u, options['missing_rate'])
         result.append(u)
+    if options.get('anomaly_rate', 0) > 0:
+        result = inject_anomalies(result, options['anomaly_rate'])
     if 'seed' in options and options['seed'] is not None:
-        random.seed()  # reset to system entropy
+        random.seed()
     return result
+
+
+def user_time_series(options=None):
+    """Generate a user with time-series activity data.
+    
+    Args:
+        options: Same as user() plus:
+            - days (int): Number of days of activity (default 30)
+            - events_per_day (int): Average events per day (default 8)
+    
+    Returns:
+        dict with 'user' and 'activity' keys
+    """
+    if options is None:
+        options = {}
+    u = user(options)
+    activity = generate_time_series(u, options.get('days', 30), options.get('events_per_day', 8))
+    return {'user': u, 'activity': activity}
 
 
 def users_to_csv(count=10, options=None):

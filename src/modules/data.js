@@ -27,6 +27,9 @@ const countriesData = loadData('countries.json');
 // Phase 2 datasets
 const healthcareData = loadData('healthcare.json');
 
+// Phase 4 datasets
+const localesData = loadData('locales.json');
+
 // ─── Seedable RNG (Phase 3) ─────────────────────────────────────────────────
 /**
  * Mulberry32: A fast, high-quality 32-bit seedable PRNG.
@@ -746,12 +749,215 @@ const flattenObject = (obj, prefix = '') => {
     return flat;
 };
 
+// ─── Schema Override Engine (Phase 4) ───────────────────────────────────────
+/**
+ * Applies user-defined schema constraints to a generated user object.
+ * Supports: age.min/max, gender, employment.status, education.level,
+ * financial.annualIncome.min/max, health.medicalCondition, address.country
+ * @param {object} schema - Schema constraints
+ * @returns {function} A post-processor that modifies the generated user
+ */
+const applySchemaOverrides = (user, schema) => {
+    if (!schema || typeof schema !== 'object') return user;
+
+    // Age override
+    if (schema.age) {
+        if (schema.age.min != null && user.age < schema.age.min) user.age = schema.age.min;
+        if (schema.age.max != null && user.age > schema.age.max) user.age = schema.age.max;
+        if (schema.age.exact != null) user.age = schema.age.exact;
+        // Recalculate birthDate
+        const cy = new Date().getFullYear();
+        const bm = Math.floor(rng() * 12) + 1;
+        const bd = Math.floor(rng() * 28) + 1;
+        user.birthDate = `${cy - user.age}-${String(bm).padStart(2, '0')}-${String(bd).padStart(2, '0')}`;
+    }
+
+    // Gender override
+    if (schema.gender) {
+        user.gender = schema.gender;
+    }
+
+    // Employment status override
+    if (schema.employment && schema.employment.status) {
+        user.employment.status = schema.employment.status;
+    }
+
+    // Education level override
+    if (schema.education && schema.education.level) {
+        user.education.level = schema.education.level;
+    }
+
+    // Financial income range override
+    if (schema.financial) {
+        if (schema.financial.annualIncome) {
+            const fi = schema.financial.annualIncome;
+            if (fi.min != null && user.financial.annualIncome < fi.min)
+                user.financial.annualIncome = fi.min;
+            if (fi.max != null && user.financial.annualIncome > fi.max)
+                user.financial.annualIncome = fi.max;
+        }
+    }
+
+    // Medical condition override
+    if (schema.health && schema.health.medicalCondition) {
+        user.health.medicalCondition = schema.health.medicalCondition;
+    }
+
+    // Country override
+    if (schema.address && schema.address.country) {
+        user.address.country = schema.address.country;
+    }
+
+    // Height/weight overrides
+    if (schema.height) {
+        if (schema.height.min != null) user.height = Math.max(user.height, schema.height.min);
+        if (schema.height.max != null) user.height = Math.min(user.height, schema.height.max);
+    }
+    if (schema.weight) {
+        if (schema.weight.min != null) user.weight = Math.max(user.weight, schema.weight.min);
+        if (schema.weight.max != null) user.weight = Math.min(user.weight, schema.weight.max);
+    }
+
+    return user;
+};
+
+// ─── Locale-Aware Name Selection (Phase 4) ──────────────────────────────────
+const LOCALE_PHONE_CODES = {
+    'en': '+1', 'in': '+91', 'jp': '+81', 'kr': '+82',
+    'de': '+49', 'br': '+55', 'ar': '+966', 'fr': '+33'
+};
+
+const LOCALE_COUNTRIES = {
+    'en': { name: 'United States', code: 'US' },
+    'in': { name: 'India', code: 'IN' },
+    'jp': { name: 'Japan', code: 'JP' },
+    'kr': { name: 'South Korea', code: 'KR' },
+    'de': { name: 'Germany', code: 'DE' },
+    'br': { name: 'Brazil', code: 'BR' },
+    'ar': { name: 'Saudi Arabia', code: 'SA' },
+    'fr': { name: 'France', code: 'FR' }
+};
+
+// ─── Time-Series Activity Generator (Phase 4) ──────────────────────────────
+const ACTIVITY_TYPES = ['login', 'page_view', 'purchase', 'search', 'click', 'logout', 'api_call', 'upload', 'download', 'comment'];
+const PAGE_NAMES = ['/home', '/profile', '/settings', '/dashboard', '/products', '/cart', '/checkout', '/search', '/help', '/about', '/pricing', '/blog'];
+
+/**
+ * Generates time-series activity data for a user over N days.
+ * @param {object} user - A generated user object
+ * @param {number} days - Number of days to generate
+ * @param {number} [avgEventsPerDay=8] - Average events per day
+ * @returns {object[]} Array of timestamped activity events
+ */
+const generateTimeSeries = (user, days = 30, avgEventsPerDay = 8) => {
+    const events = [];
+    const now = new Date();
+    const isActive = user.digitalFootprint.accountStatus === 'active';
+    const activityMultiplier = isActive ? 1.0 : 0.2;
+
+    for (let d = 0; d < days; d++) {
+        const dayDate = new Date(now.getTime() - (days - d) * 24 * 60 * 60 * 1000);
+        const dayOfWeek = dayDate.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+        // Fewer events on weekends
+        const dailyEvents = Math.max(0, Math.round(
+            normalRandom(avgEventsPerDay * activityMultiplier * (isWeekend ? 0.6 : 1.0), 3)
+        ));
+
+        for (let e = 0; e < dailyEvents; e++) {
+            // Time of day: weighted toward work hours (9-22)
+            const hour = Math.floor(clamp(normalRandom(14, 4), 0, 23));
+            const minute = Math.floor(rng() * 60);
+            const second = Math.floor(rng() * 60);
+
+            const eventTime = new Date(dayDate);
+            eventTime.setHours(hour, minute, second);
+
+            const activityType = getRandom(ACTIVITY_TYPES);
+            const event = {
+                userId: user.id,
+                timestamp: eventTime.toISOString(),
+                type: activityType,
+                page: getRandom(PAGE_NAMES),
+                duration: activityType === 'page_view'
+                    ? Math.round(clamp(normalRandom(45, 30), 2, 600))
+                    : null,
+                device: getRandom(['desktop', 'mobile', 'tablet']),
+                ip: user.ip,
+                success: rng() > 0.05, // 95% success rate
+            };
+
+            if (activityType === 'purchase') {
+                event.amount = parseFloat((rng() * 500 + 5).toFixed(2));
+                event.currency = 'USD';
+            }
+            if (activityType === 'search') {
+                event.query = getRandom(['laptop', 'shoes', 'phone case', 'headphones', 'book', 'camera', 'jacket', 'watch', 'keyboard', 'monitor']);
+            }
+
+            events.push(event);
+        }
+    }
+
+    // Sort chronologically
+    events.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    return events;
+};
+
+// ─── Anomaly Injection Engine (Phase 4) ──────────────────────────────────────
+const ANOMALY_TYPES = [
+    { type: 'income_spike',     weight: 20, apply: (u) => { u.financial.annualIncome *= (5 + rng() * 10); u.financial.annualIncome = Math.round(u.financial.annualIncome); }},
+    { type: 'age_outlier',      weight: 10, apply: (u) => { u.age = getRandom([1, 2, 3, 115, 120, 130]); }},
+    { type: 'credit_fraud',     weight: 15, apply: (u) => { u.financial.creditScore = getRandom([100, 150, 200, 850, 900, 999]); u.financial.debtToIncome = parseFloat((rng() * 50 + 10).toFixed(2)); }},
+    { type: 'geo_impossible',   weight: 10, apply: (u) => { u.address.coordinates = { latitude: '0.000000', longitude: '0.000000' }; u.ip = '0.0.0.0'; }},
+    { type: 'session_anomaly',  weight: 15, apply: (u) => { u.digitalFootprint.sessionsPerWeek = Math.round(rng() * 500 + 200); u.digitalFootprint.avgSessionMinutes = parseFloat((rng() * 1000 + 500).toFixed(1)); }},
+    { type: 'velocity_attack',  weight: 10, apply: (u) => { u.digitalFootprint.totalSessions = Math.round(rng() * 100000 + 50000); u.digitalFootprint.lastLoginAt = new Date().toISOString(); }},
+    { type: 'data_mismatch',    weight: 10, apply: (u) => { u.age = 12; u.employment.status = 'employed'; u.employment.yearsExperience = 30; u.financial.annualIncome = 500000; }},
+    { type: 'health_outlier',   weight: 10, apply: (u) => { u.health.bmi = getRandom([8, 9, 75, 80]); u.health.bloodPressure = { systolic: getRandom([40, 300]), diastolic: getRandom([20, 200]) }; }},
+];
+
+/**
+ * Injects anomalies into a user array for fraud detection / anomaly detection training.
+ * @param {object[]} usersArr - Array of user objects
+ * @param {number} rate - Fraction (0-1) of users to make anomalous
+ * @returns {object[]} Modified array with anomaly flags
+ */
+const injectAnomalies = (usersArr, rate = 0.05) => {
+    return usersArr.map(u => {
+        const user = JSON.parse(JSON.stringify(u)); // deep clone
+        if (rng() < rate) {
+            const anomalyIndex = weightedRandom(ANOMALY_TYPES.map(a => a.weight));
+            const anomaly = ANOMALY_TYPES[anomalyIndex];
+            anomaly.apply(user);
+            user._anomaly = {
+                isAnomaly: true,
+                type: anomaly.type
+            };
+        } else {
+            user._anomaly = { isAnomaly: false, type: null };
+        }
+        return user;
+    });
+};
+
 // ─── Main User Generator ───────────────────────────────────────────────────
-const generateSingleUser = (idIndex = null) => {
-    // Core identity
-    const firstName = getRandom(firstNames.names);
-    const middleName = getRandom(middleNames.father);
-    const lastName = getRandom(lastNames.surnames);
+const generateSingleUser = (idIndex = null, schema = null, locale = null) => {
+    // Locale-aware name selection
+    let firstName, middleName, lastName, phoneCode;
+    if (locale && localesData[locale]) {
+        const loc = localesData[locale];
+        const gender = schema && schema.gender ? schema.gender : getRandom(['male', 'female']);
+        firstName = getRandom(gender === 'female' ? loc.first_female : loc.first_male);
+        middleName = getRandom(loc.first_male); // middle name from male pool
+        lastName = getRandom(loc.last);
+        phoneCode = LOCALE_PHONE_CODES[locale] || '+1';
+    } else {
+        firstName = getRandom(firstNames.names);
+        middleName = getRandom(middleNames.father);
+        lastName = getRandom(lastNames.surnames);
+        phoneCode = '+1';
+    }
     const emailProvider = getRandom(emails.mails);
     const cardType = getRandom(cardData.cards);
     const domain = getRandom(domainData.domains);
@@ -841,7 +1047,7 @@ const generateSingleUser = (idIndex = null) => {
     // Pick a country from the dataset
     const country = getRandom(countriesData);
 
-    return {
+    const result = {
         id: `${id}`,
         fullName: `${firstName} ${middleName} ${lastName}`,
         firstName,
@@ -850,7 +1056,7 @@ const generateSingleUser = (idIndex = null) => {
         age,
         gender: getRandom(genderOptions),
         email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${emailProvider}`,
-        phone: `+1 ${phoneNumber}`,
+        phone: `${phoneCode} ${phoneNumber}`,
         username: `${firstName.toLowerCase()}_${id}`,
         password,
         birthDate: `${birthYear}-${String(birthMonth).padStart(2, '0')}-${String(birthDay).padStart(2, '0')}`,
@@ -886,6 +1092,19 @@ const generateSingleUser = (idIndex = null) => {
         hobbies: userHobbies,
         technology_profile: techProfile
     };
+
+    // Phase 4: Apply locale country override
+    if (locale && LOCALE_COUNTRIES[locale]) {
+        result.address.country = LOCALE_COUNTRIES[locale].name;
+        result.address.countryCode = LOCALE_COUNTRIES[locale].code;
+    }
+
+    // Phase 4: Apply schema overrides
+    if (schema) {
+        return applySchemaOverrides(result, schema);
+    }
+
+    return result;
 };
 
 // ─── Public API ─────────────────────────────────────────────────────────────
@@ -894,12 +1113,14 @@ const generateSingleUser = (idIndex = null) => {
  * @param {object} [options] - Configuration options
  * @param {number} [options.missing_rate=0] - Probability (0-1) that each field is null
  * @param {number} [options.seed] - Random seed for reproducibility
+ * @param {object} [options.schema] - Schema constraints { age: {min,max}, gender, ... }
+ * @param {string} [options.locale] - Locale code: 'en','in','jp','kr','de','br','ar','fr'
  * @returns {object} User profile
  */
 const user = (options = {}) => {
     if (options.seed != null) setSeed(options.seed);
-    const u = generateSingleUser();
-    if (options.seed != null) setSeed(null); // reset after generation
+    const u = generateSingleUser(null, options.schema || null, options.locale || null);
+    if (options.seed != null) setSeed(null);
     if (options.missing_rate && options.missing_rate > 0) {
         return applyMissingData(u, options.missing_rate);
     }
@@ -912,19 +1133,38 @@ const user = (options = {}) => {
  * @param {object} [options] - Configuration options
  * @param {number} [options.missing_rate=0] - Probability (0-1) that each field is null
  * @param {number} [options.seed] - Random seed for reproducibility
+ * @param {object} [options.schema] - Schema constraints
+ * @param {string} [options.locale] - Locale code
+ * @param {number} [options.anomaly_rate=0] - Fraction of users to inject anomalies into
  * @returns {object[]} Array of user profiles
  */
 const users = (count = 10, options = {}) => {
     if (options.seed != null) setSeed(options.seed);
-    const result = Array.from({ length: count }, (_, i) => {
-        const u = generateSingleUser(i + 1);
+    let result = Array.from({ length: count }, (_, i) => {
+        const u = generateSingleUser(i + 1, options.schema || null, options.locale || null);
         if (options.missing_rate && options.missing_rate > 0) {
             return applyMissingData(u, options.missing_rate);
         }
         return u;
     });
-    if (options.seed != null) setSeed(null); // reset
+    if (options.anomaly_rate && options.anomaly_rate > 0) {
+        result = injectAnomalies(result, options.anomaly_rate);
+    }
+    if (options.seed != null) setSeed(null);
     return result;
+};
+
+/**
+ * Generate a user with time-series activity data.
+ * @param {object} [options] - Same as user() plus:
+ * @param {number} [options.days=30] - Number of days of activity
+ * @param {number} [options.eventsPerDay=8] - Average events per day
+ * @returns {{ user: object, activity: object[] }}
+ */
+const userTimeSeries = (options = {}) => {
+    const u = user(options);
+    const activity = generateTimeSeries(u, options.days || 30, options.eventsPerDay || 8);
+    return { user: u, activity };
 };
 
 /**
@@ -1067,6 +1307,7 @@ const biodata = (count = 10) => {
 module.exports = {
     user,
     users,
+    userTimeSeries,
     usersToCSV,
     usersToJSON,
     usersFlat,

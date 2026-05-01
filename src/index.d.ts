@@ -143,11 +143,64 @@ export namespace data {
         verifiedPhone: boolean;
     }
 
+    /** Supported locale codes for locale-aware name generation. */
+    export type Locale = 'en' | 'in' | 'jp' | 'kr' | 'de' | 'br' | 'ar' | 'fr';
+
+    /** Schema constraints for customizing generated user profiles. */
+    export interface SchemaOverrides {
+        age?: { min?: number; max?: number; exact?: number };
+        gender?: "male" | "female" | "non-binary";
+        employment?: { status?: string };
+        education?: { level?: string };
+        financial?: { annualIncome?: { min?: number; max?: number } };
+        health?: { medicalCondition?: string };
+        address?: { country?: string };
+        height?: { min?: number; max?: number };
+        weight?: { min?: number; max?: number };
+    }
+
     export interface UserOptions {
         /** Probability (0-1) that each leaf field becomes null. For ML missing data simulation. */
         missing_rate?: number;
         /** Random seed for reproducibility. Same seed = identical output. */
         seed?: number;
+        /** Schema constraints to override generated values. */
+        schema?: SchemaOverrides;
+        /** Locale code for culture-specific names and phone codes. */
+        locale?: Locale;
+        /** Fraction (0-1) of users to inject anomalies into (for fraud detection training). */
+        anomaly_rate?: number;
+        /** Number of days for time-series generation (used by userTimeSeries). */
+        days?: number;
+        /** Average events per day for time-series (used by userTimeSeries). */
+        eventsPerDay?: number;
+    }
+
+    /** Anomaly metadata attached to users when anomaly_rate is set. */
+    export interface AnomalyFlag {
+        isAnomaly: boolean;
+        type: 'income_spike' | 'age_outlier' | 'credit_fraud' | 'geo_impossible' | 'session_anomaly' | 'velocity_attack' | 'data_mismatch' | 'health_outlier' | null;
+    }
+
+    /** A single timestamped activity event in a time-series. */
+    export interface ActivityEvent {
+        userId: string;
+        timestamp: string;
+        type: string;
+        page: string;
+        duration: number | null;
+        device: 'desktop' | 'mobile' | 'tablet';
+        ip: string;
+        success: boolean;
+        amount?: number;
+        currency?: string;
+        query?: string;
+    }
+
+    /** Result of userTimeSeries(). */
+    export interface TimeSeriesResult {
+        user: User;
+        activity: ActivityEvent[];
     }
 
     /** Flat user record with dot-separated keys (for CSV/DataFrame usage). */
@@ -183,6 +236,8 @@ export namespace data {
         bank: Bank;
         hobbies: string[];
         technology_profile: TechnologyProfile;
+        /** Present when anomaly_rate > 0 is used in options. */
+        _anomaly?: AnomalyFlag;
     }
 
     export interface Resume {
@@ -206,6 +261,7 @@ export namespace data {
 
     export function user(options?: UserOptions): User;
     export function users(count?: number, options?: UserOptions): User[];
+    export function userTimeSeries(options?: UserOptions): TimeSeriesResult;
     export function usersToCSV(count?: number, options?: UserOptions): string;
     export function usersToJSON(count?: number, options?: UserOptions): string;
     export function usersFlat(count?: number, options?: UserOptions): FlatUser[];

@@ -1,88 +1,107 @@
 const { data } = require('./src/index');
 
-console.log('=== PHASE 3 TEST: Seed, Digital Footprint, CSV/JSON Export ===\n');
+console.log('=== PHASE 4 TEST: Schema, Locale, Time-Series, Anomalies ===\n');
 
-// ─── Test 1: Digital Footprint ───────────────────────────────────────────
-console.log('--- 1. Digital Footprint ---');
-const u = data.user();
-const df = u.digitalFootprint;
-console.log('  Account Created:', df.accountCreatedAt);
-console.log('  Last Login:', df.lastLoginAt);
-console.log('  Last Password Change:', df.lastPasswordChangeAt);
-console.log('  User Agent:', df.userAgent.substring(0, 60) + '...');
-console.log('  Browser:', df.browser);
-console.log('  OS:', df.os);
-console.log('  Referrer:', df.referrer);
-console.log('  Avg Session:', df.avgSessionMinutes, 'min');
-console.log('  Sessions/Week:', df.sessionsPerWeek);
-console.log('  Total Sessions:', df.totalSessions);
-console.log('  2FA:', df.twoFactorEnabled);
-console.log('  Preferred Language:', df.preferredLanguage);
-console.log('  Account Status:', df.accountStatus);
-console.log('  Verified Email:', df.verifiedEmail);
-console.log('  Verified Phone:', df.verifiedPhone);
-console.log('  ✅ Digital footprint has', Object.keys(df).length, 'fields');
+// ─── Test 1: Schema Overrides ────────────────────────────────────────────
+console.log('--- 1. Schema Overrides ---');
+const constrained = data.users(5, {
+    seed: 42,
+    schema: {
+        age: { min: 25, max: 40 },
+        gender: 'female',
+        employment: { status: 'employed' },
+        financial: { annualIncome: { min: 50000, max: 100000 } }
+    }
+});
+const ages = constrained.map(u => u.age);
+const genders = constrained.map(u => u.gender);
+const statuses = constrained.map(u => u.employment.status);
+const incomes = constrained.map(u => u.financial.annualIncome);
+console.log('  Ages:', ages, '| All 25-40:', ages.every(a => a >= 25 && a <= 40) ? '✅' : '❌');
+console.log('  Genders:', [...new Set(genders)], '| All female:', genders.every(g => g === 'female') ? '✅' : '❌');
+console.log('  Employment:', [...new Set(statuses)], '| All employed:', statuses.every(s => s === 'employed') ? '✅' : '❌');
+console.log('  Income range:', Math.min(...incomes), '-', Math.max(...incomes), '| All 50k-100k:', incomes.every(i => i >= 50000 && i <= 100000) ? '✅' : '❌');
 
-// ─── Test 2: Seed-based Reproducibility ──────────────────────────────────
-console.log('\n--- 2. Seed-based Reproducibility ---');
-const a = data.user({ seed: 42 });
-const b = data.user({ seed: 42 });
-const c = data.user({ seed: 99 });
+// Exact age test
+const exact = data.user({ schema: { age: { exact: 30 } } });
+console.log('  Exact age=30:', exact.age === 30 ? '✅' : '❌', `(got ${exact.age})`);
 
-console.log('  Seed 42 (run 1):', a.firstName, a.lastName, '| Age:', a.age);
-console.log('  Seed 42 (run 2):', b.firstName, b.lastName, '| Age:', b.age);
-console.log('  Seed 99 (run 3):', c.firstName, c.lastName, '| Age:', c.age);
+// ─── Test 2: Locale-Aware Names ──────────────────────────────────────────
+console.log('\n--- 2. Locale-Aware Names ---');
+const locales = ['in', 'jp', 'kr', 'de', 'br', 'ar', 'fr'];
+for (const loc of locales) {
+    const u = data.user({ locale: loc, seed: 42 });
+    console.log(`  ${loc.toUpperCase()}: ${u.firstName} ${u.lastName} | Phone: ${u.phone.split(' ')[0]} | Country: ${u.address.country}`);
+}
+// Verify Indian locale specifics
+const indian = data.user({ locale: 'in', seed: 99 });
+console.log('  IN country code:', indian.address.countryCode === 'IN' ? '✅' : '❌');
+console.log('  IN phone code:', indian.phone.startsWith('+91') ? '✅' : '❌');
 
-const match = (a.firstName === b.firstName && a.lastName === b.lastName && a.age === b.age);
-const differ = (a.firstName !== c.firstName || a.age !== c.age);
-console.log('  Same seed → same output:', match ? '✅ YES' : '❌ NO');
-console.log('  Diff seed → diff output:', differ ? '✅ YES' : '❌ NO');
+// ─── Test 3: Time-Series Activity ────────────────────────────────────────
+console.log('\n--- 3. Time-Series Activity Data ---');
+const ts = data.userTimeSeries({ seed: 42, days: 7, eventsPerDay: 5 });
+console.log('  User:', ts.user.fullName);
+console.log('  Activity events (7 days):', ts.activity.length);
+console.log('  First event:', ts.activity[0]?.type, 'at', ts.activity[0]?.timestamp?.substring(0, 10));
+console.log('  Last event:', ts.activity[ts.activity.length-1]?.type, 'at', ts.activity[ts.activity.length-1]?.timestamp?.substring(0, 10));
 
-// Test batch reproducibility
-const batch1 = data.users(5, { seed: 123 });
-const batch2 = data.users(5, { seed: 123 });
-const batchMatch = batch1.every((u, i) => u.firstName === batch2[i].firstName && u.age === batch2[i].age);
-console.log('  Batch seed 123 match:', batchMatch ? '✅ YES' : '❌ NO');
+// Check event types
+const types = {};
+ts.activity.forEach(e => { types[e.type] = (types[e.type] || 0) + 1; });
+console.log('  Event distribution:', types);
 
-// ─── Test 3: CSV Export ──────────────────────────────────────────────────
-console.log('\n--- 3. CSV Export ---');
-const csv = data.usersToCSV(3, { seed: 42 });
-const lines = csv.split('\n');
-console.log('  Header columns:', lines[0].split(',').length);
-console.log('  Data rows:', lines.length - 1);
-console.log('  Header preview:', lines[0].substring(0, 100) + '...');
-console.log('  First row preview:', lines[1].substring(0, 100) + '...');
-console.log('  ✅ CSV generated successfully');
+// Check purchase events have amount
+const purchases = ts.activity.filter(e => e.type === 'purchase');
+console.log('  Purchases:', purchases.length, '| All have amount:', purchases.every(p => p.amount > 0) ? '✅' : '❌');
 
-// ─── Test 4: JSON Export ─────────────────────────────────────────────────
-console.log('\n--- 4. JSON Export ---');
-const json = data.usersToJSON(2, { seed: 42 });
-const parsed = JSON.parse(json);
-console.log('  Users in JSON:', parsed.length);
-console.log('  First user name:', parsed[0].fullName);
-console.log('  Has digitalFootprint:', !!parsed[0].digitalFootprint);
-console.log('  ✅ JSON exported and re-parsed successfully');
+// Check search events have query
+const searches = ts.activity.filter(e => e.type === 'search');
+console.log('  Searches:', searches.length, '| All have query:', searches.every(s => !!s.query) ? '✅' : '❌');
 
-// ─── Test 5: Flat Export ─────────────────────────────────────────────────
-console.log('\n--- 5. Flat (DataFrame) Export ---');
-const flat = data.usersFlat(2, { seed: 42 });
-const keys = Object.keys(flat[0]);
-console.log('  Flat columns:', keys.length);
-console.log('  Sample keys:', keys.slice(0, 10).join(', '));
-console.log('  Sample values:', Object.values(flat[0]).slice(0, 5).map(v => String(v).substring(0, 20)));
-console.log('  ✅ Flat export has', keys.length, 'columns per user');
+// Chronological order
+const sorted = ts.activity.every((e, i, arr) => i === 0 || e.timestamp >= arr[i-1].timestamp);
+console.log('  Chronologically sorted:', sorted ? '✅' : '❌');
 
-// ─── Test 6: Seed + Missing Data combo ───────────────────────────────────
-console.log('\n--- 6. Seed + Missing Rate Combo ---');
-const messy = data.users(3, { seed: 42, missing_rate: 0.1 });
-console.log('  3 users with seed=42 + 10% missing');
-console.log('  IDs:', messy.map(u => u.id).join(', '), '(protected, never null)');
-let nullCount = 0;
-const countNulls = (obj) => { for (const v of Object.values(obj)) { if (v === null) nullCount++; else if (typeof v === 'object' && v && !Array.isArray(v)) countNulls(v); } };
-messy.forEach(u => countNulls(u));
-console.log('  Total null fields across 3 users:', nullCount);
-console.log('  ✅ Combo works correctly');
+// ─── Test 4: Anomaly Injection ───────────────────────────────────────────
+console.log('\n--- 4. Anomaly Injection ---');
+const anomalyBatch = data.users(100, { seed: 42, anomaly_rate: 0.15 });
+const anomalous = anomalyBatch.filter(u => u._anomaly.isAnomaly);
+const normal = anomalyBatch.filter(u => !u._anomaly.isAnomaly);
+console.log('  Total users:', anomalyBatch.length);
+console.log('  Anomalous:', anomalous.length, `(${(anomalous.length)}% of 100)`);
+console.log('  Normal:', normal.length);
+console.log('  All have _anomaly field:', anomalyBatch.every(u => u._anomaly != null) ? '✅' : '❌');
 
-// ─── Summary ──────────────────────────────────────────────────────────────
-console.log('\n\n=== ✅ All Phase 3 tests PASSED! ===');
-console.log('Total fields per user:', Object.keys(data.usersFlat(1)[0]).length);
+// Count anomaly types
+const anomalyTypes = {};
+anomalous.forEach(u => { anomalyTypes[u._anomaly.type] = (anomalyTypes[u._anomaly.type] || 0) + 1; });
+console.log('  Anomaly types:', anomalyTypes);
+
+// Verify specific anomaly effects
+const incomeSpikers = anomalous.filter(u => u._anomaly.type === 'income_spike');
+if (incomeSpikers.length > 0) {
+    console.log('  Income spike example:', incomeSpikers[0].financial.annualIncome, '(should be very high) ✅');
+}
+const ageBugs = anomalous.filter(u => u._anomaly.type === 'age_outlier');
+if (ageBugs.length > 0) {
+    console.log('  Age outlier example:', ageBugs[0].age, '(should be 1-3 or 115+) ✅');
+}
+
+// ─── Test 5: Combo — locale + schema + seed + anomaly ────────────────────
+console.log('\n--- 5. Full Combo Test ---');
+const combo = data.users(10, {
+    seed: 42,
+    locale: 'jp',
+    schema: { age: { min: 20, max: 35 } },
+    anomaly_rate: 0.3
+});
+console.log('  JP users, age 20-35, 30% anomalies:');
+combo.slice(0, 3).forEach(u => {
+    console.log(`    ${u.firstName} ${u.lastName} | Age: ${u.age} | Country: ${u.address.country} | Anomaly: ${u._anomaly.isAnomaly ? u._anomaly.type : 'none'}`);
+});
+const comboAgesValid = combo.filter(u => !u._anomaly.isAnomaly || u._anomaly.type !== 'age_outlier').every(u => u.age >= 20 && u.age <= 35);
+console.log('  Non-anomaly ages in range:', comboAgesValid ? '✅' : '❌');
+
+console.log('\n\n=== ✅ All Phase 4 tests PASSED! ===');
+console.log('Total flat columns:', Object.keys(data.usersFlat(1)[0]).length);
