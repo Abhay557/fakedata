@@ -166,29 +166,10 @@
           <a class="sidebar-item" data-section="creditcard" href="#">data.creditcard()</a>
           <a class="sidebar-item" data-section="email" href="#">data.get_email()</a>
           <a class="sidebar-item" data-section="city" href="#">data.get_city()</a>
-          <a class="sidebar-item" data-section="password" href="#">data.get_password()</a>
+          <a class="sidebar-item" data-section="time-series" href="#">data.userTimeSeries()</a>
+          <a class="sidebar-item" data-section="anomalies" href="#">Anomaly Injection</a>
         </div>
-        <div class="sidebar-group">
-          <div class="sidebar-group-label">Fun Module</div>
-          <a class="sidebar-item" data-section="pokemon" href="#">fun.pokemon()</a>
-          <a class="sidebar-item" data-section="pokemon-type" href="#">fun.pokemon_by_type()</a>
-          <a class="sidebar-item" data-section="joke" href="#">fun.joke()</a>
-          <a class="sidebar-item" data-section="fact" href="#">fun.fact()</a>
-          <a class="sidebar-item" data-section="fortune" href="#">fun.fortune()</a>
-        </div>
-        <div class="sidebar-group">
-          <div class="sidebar-group-label">Anime Module</div>
-          <a class="sidebar-item" data-section="anime-quote" href="#">anime.quote()</a>
-          <a class="sidebar-item" data-section="anime-show" href="#">anime.quotes_by_show()</a>
-          <a class="sidebar-item" data-section="anime-fact" href="#">anime.fact()</a>
-        </div>
-        <div class="sidebar-group">
-          <div class="sidebar-group-label">Animals Module</div>
-          <a class="sidebar-item" data-section="animal" href="#">animals.random_animal()</a>
-          <a class="sidebar-item" data-section="dog-fact" href="#">animals.dog_fact()</a>
-          <a class="sidebar-item" data-section="cat-fact" href="#">animals.cat_fact()</a>
-        </div>
-      </nav>
+        </nav>
     </aside>
 
     <!-- ── MAIN CONTENT ── -->
@@ -235,11 +216,8 @@
 <span class="c-comment">// Generate a full user</span>
 <span class="c-keyword">const</span> <span class="c-var">user</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>();
 
-<span class="c-comment">// Get a Pokémon</span>
-<span class="c-keyword">const</span> <span class="c-var">poke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>();
-
-<span class="c-comment">// Random joke</span>
-<span class="c-keyword">const</span> <span class="c-var">joke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">joke</span>();</pre>
+<span class="c-comment">// Time-series & anomalies</span>
+<span class="c-keyword">const</span> <span class="c-var">ts</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">userTimeSeries</span>({ <span class="c-var">days</span>: <span class="c-num">30</span> });</pre>
           </div>
           <div class="code-panel hidden" id="qs-py">
             <pre><span class="c-keyword">import</span> <span class="c-var">fakedata</span>
@@ -247,11 +225,8 @@
 <span class="c-comment"># Generate a full user</span>
 <span class="c-var">user</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>()
 
-<span class="c-comment"># Get a Pokémon</span>
-<span class="c-var">poke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>()
-
-<span class="c-comment"># Random joke</span>
-<span class="c-var">joke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">joke</span>()</pre>
+<span class="c-comment"># Time-series & anomalies</span>
+<span class="c-var">ts</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user_time_series</span>({<span class="c-str">"days"</span>: <span class="c-num">30</span>})</pre>
           </div>
         </div>
       </section>
@@ -426,227 +401,41 @@
         </div>
       </section>
 
-      <!-- FUN.POKEMON -->
-      <section class="api-section" id="sec-pokemon">
+      
+      <!-- DATA.USERTIMESERIES -->
+      <section class="api-section" id="sec-time-series">
         <div class="api-endpoint-tag">
           <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.fun.pokemon()</span>
-          <button class="run-btn" id="run-pokemon">▶ Run</button>
+          <span class="endpoint-path">fakedata.data.userTimeSeries(options)</span>
         </div>
-        <h2 class="api-section-title">fun.pokemon()</h2>
-        <p class="api-section-desc">Returns a randomly selected Pokémon from the bundled dataset of 800+ entries with
-          full stats.</p>
-        <h4 class="param-title">Response Schema</h4>
-        <div class="schema-block">
-          <pre>{
-  <span class="c-prop">"id"</span>:          <span class="c-str">integer</span>,
-  <span class="c-prop">"name"</span>:        <span class="c-str">string</span>,
-  <span class="c-prop">"Type 1"</span>:      <span class="c-str">string</span>,
-  <span class="c-prop">"Type 2"</span>:      <span class="c-str">string | ""</span>,
-  <span class="c-prop">"HP"</span>:          <span class="c-str">integer</span>,
-  <span class="c-prop">"Attack"</span>:      <span class="c-str">integer</span>,
-  <span class="c-prop">"Defense"</span>:     <span class="c-str">integer</span>,
-  <span class="c-prop">"Speed"</span>:       <span class="c-str">integer</span>,
-  <span class="c-prop">"Generation"</span>:  <span class="c-str">integer</span>,
-  <span class="c-prop">"Legendary"</span>:   <span class="c-str">boolean</span>
-}</pre>
-        </div>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-pokemon">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
+        <h2 class="api-section-title">data.userTimeSeries()</h2>
+        <p class="api-section-desc">Generates realistic chronological user activity logs, ideal for time-series modeling and event-driven architecture simulation.</p>
+        <h4 class="param-title">Parameters</h4>
+        <div class="param-table-wrap">
+          <table class="param-table">
+            <thead>
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>days</code></td><td>integer</td><td>Number of days to simulate (default: 30)</td></tr>
+              <tr><td><code>eventsPerDay</code></td><td>integer</td><td>Average events per day (default: 5)</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
-      <!-- FUN.POKEMON_BY_TYPE -->
-      <section class="api-section" id="sec-pokemon-type">
+      <!-- ANOMALIES -->
+      <section class="api-section" id="sec-anomalies">
         <div class="api-endpoint-tag">
-          <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.fun.pokemon_by_type(type)</span>
-          <button class="run-btn" id="run-pokemon-type">▶ Run</button>
+          <span class="method-badge">FLAG</span>
+          <span class="endpoint-path">anomaly_rate</span>
         </div>
-        <h2 class="api-section-title">fun.pokemon_by_type(type)</h2>
-        <p class="api-section-desc">Filters Pokémon by a specific type and returns a random match.</p>
-        <div class="param-input-row">
-          <label>Type:
-            <select class="param-input" id="inp-poke-type">
-              <option>Fire</option>
-              <option>Water</option>
-              <option>Grass</option>
-              <option>Electric</option>
-              <option>Psychic</option>
-              <option>Dragon</option>
-              <option>Ghost</option>
-              <option>Dark</option>
-              <option>Steel</option>
-              <option>Fairy</option>
-              <option>Ice</option>
-              <option>Normal</option>
-              <option>Fighting</option>
-              <option>Poison</option>
-              <option>Ground</option>
-              <option>Rock</option>
-              <option>Bug</option>
-              <option>Flying</option>
-            </select>
-          </label>
-        </div>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-pokemon-type">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
-        </div>
+        <h2 class="api-section-title">Anomaly Injection</h2>
+        <p class="api-section-desc">By passing <code>anomaly_rate: 0.1</code> to <code>data.users()</code>, the engine injects statistically unlikely fraud patterns into 10% of the returned user profiles.</p>
+        <div class="schema-block"><pre>const users = fakedata.data.users(100, { anomaly_rate: 0.05 });</pre></div>
       </section>
-
-      <!-- FUN.JOKE -->
-      <section class="api-section" id="sec-joke">
-        <div class="api-endpoint-tag">
-          <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.fun.joke()</span>
-          <button class="run-btn" id="run-joke">▶ Run</button>
-        </div>
-        <h2 class="api-section-title">fun.joke()</h2>
-        <p class="api-section-desc">Returns a random joke with setup and punchline from a dataset of 500+ jokes across
-          general, programming, and knock-knock categories.</p>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-joke">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
-        </div>
-      </section>
-
-      <!-- FUN.FACT -->
-      <section class="api-section" id="sec-fact">
-        <div class="api-endpoint-tag">
-          <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.fun.fact()</span>
-          <button class="run-btn" id="run-fact">▶ Run</button>
-        </div>
-        <h2 class="api-section-title">fun.fact()</h2>
-        <p class="api-section-desc">Returns a random general knowledge fact from the bundled dataset.</p>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-fact">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
-        </div>
-      </section>
-
-      <!-- FUN.FORTUNE -->
-      <section class="api-section" id="sec-fortune">
-        <div class="api-endpoint-tag">
-          <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.fun.fortune()</span>
-          <button class="run-btn" id="run-fortune">▶ Run</button>
-        </div>
-        <h2 class="api-section-title">fun.fortune()</h2>
-        <p class="api-section-desc">Returns a philosophical or funny fortune cookie-style message.</p>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-fortune">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
-        </div>
-      </section>
-
-      <!-- ANIME.QUOTE -->
-      <section class="api-section" id="sec-anime-quote">
-        <div class="api-endpoint-tag">
-          <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.anime.quote()</span>
-          <button class="run-btn" id="run-anime-quote">▶ Run</button>
-        </div>
-        <h2 class="api-section-title">anime.quote()</h2>
-        <p class="api-section-desc">Returns a random iconic anime quote with character and show attribution.</p>
-        <h4 class="param-title">Response Schema</h4>
-        <div class="schema-block">
-          <pre>{
-  <span class="c-prop">"anime"</span>:     <span class="c-str">string</span>,
-  <span class="c-prop">"quote"</span>:     <span class="c-str">string</span>,
-  <span class="c-prop">"character"</span>: <span class="c-str">string</span>,
-  <span class="c-prop">"id"</span>:        <span class="c-str">integer</span>
-}</pre>
-        </div>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-anime-quote">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
-        </div>
-      </section>
-
-      <!-- ANIME.QUOTES_BY_SHOW -->
-      <section class="api-section" id="sec-anime-show">
-        <div class="api-endpoint-tag">
-          <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.anime.quotes_by_show(name)</span>
-          <button class="run-btn" id="run-anime-show">▶ Run</button>
-        </div>
-        <h2 class="api-section-title">anime.quotes_by_show(name)</h2>
-        <p class="api-section-desc">Filters and returns a random quote from a specific anime series. Case-insensitive
-          partial match.</p>
-        <div class="param-input-row">
-          <label>Show name: <input class="param-input" id="inp-anime-show" type="text" value="Naruto"
-              placeholder="e.g. Naruto" /></label>
-        </div>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-anime-show">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
-        </div>
-      </section>
-
-      <!-- ANIME.FACT -->
-      <section class="api-section" id="sec-anime-fact">
-        <div class="api-endpoint-tag">
-          <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.anime.fact()</span>
-          <button class="run-btn" id="run-anime-fact">▶ Run</button>
-        </div>
-        <h2 class="api-section-title">anime.fact()</h2>
-        <p class="api-section-desc">Returns a random anime trivia fact with a question and answer format.</p>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-anime-fact">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
-        </div>
-      </section>
-
-      <!-- ANIMALS.RANDOM_ANIMAL -->
-      <section class="api-section" id="sec-animal">
-        <div class="api-endpoint-tag">
-          <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.animals.random_animal()</span>
-          <button class="run-btn" id="run-animal">▶ Run</button>
-        </div>
-        <h2 class="api-section-title">animals.random_animal()</h2>
-        <p class="api-section-desc">Returns a randomly selected animal from a list of 200+ species.</p>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-animal">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
-        </div>
-      </section>
-
-      <!-- ANIMALS.DOG_FACT -->
-      <section class="api-section" id="sec-dog-fact">
-        <div class="api-endpoint-tag">
-          <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.animals.dog_fact()</span>
-          <button class="run-btn" id="run-dog-fact">▶ Run</button>
-        </div>
-        <h2 class="api-section-title">animals.dog_fact()</h2>
-        <p class="api-section-desc">Returns a random canine-specific fact from the bundled dataset.</p>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-dog-fact">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
-        </div>
-      </section>
-
-      <!-- ANIMALS.CAT_FACT -->
-      <section class="api-section" id="sec-cat-fact">
-        <div class="api-endpoint-tag">
-          <span class="method-badge">GET</span>
-          <span class="endpoint-path">fakedata.animals.cat_fact()</span>
-          <button class="run-btn" id="run-cat-fact">▶ Run</button>
-        </div>
-        <h2 class="api-section-title">animals.cat_fact()</h2>
-        <p class="api-section-desc">Returns a random feline-specific fact from the bundled dataset.</p>
-        <h4 class="param-title">Live Response</h4>
-        <div class="response-block" id="res-cat-fact">
-          <div class="response-placeholder">Click ▶ Run to generate a live response</div>
-        </div>
-      </section>
-
     </main>
+
   </div>
 
   <script src="../data.js"></script>

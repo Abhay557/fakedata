@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="favicon.png" />
   <title>fakedata — Zero-dependency Mock Data Generator</title>
   <meta name="description"
-    content="A high-performance, zero-dependency mock data library for Node.js and Python. Generate users, Pokemon, jokes, anime quotes and more." />
+    content="A high-performance, zero-dependency ML synthetic data engine for Node.js and Python. Generate correlated user profiles, time-series activity, and fraud anomalies." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -45,8 +45,8 @@
         Generate <span class="gradient-text">Fake Data</span><br />at the Speed of Code
       </h1>
       <p class="hero-sub">
-        A production-grade mock data engine for <strong>Node.js</strong>, <strong>TypeScript</strong>, and <strong>Python</strong>.
-        Users, Pokémon, jokes, anime quotes, and more — all from local datasets.
+        A production-grade synthetic data engine for <strong>Node.js</strong>, <strong>TypeScript</strong>, and <strong>Python</strong>.
+        Generate 109-column user profiles, time-series logs, and fraud anomalies for ML training.
       </p>
       <div class="hero-actions">
         <a href="api/index.html" class="btn-primary" id="try-playground-btn">View Docs →</a>
@@ -82,13 +82,13 @@
 <span class="c-keyword">const</span> <span class="c-var">user</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>();
 console.<span class="c-fn">log</span>(<span class="c-var">user</span>.<span class="c-prop">fullName</span>);  <span class="c-comment">// "Katherine Delmer"</span>
 
-<span class="c-comment">// Random Pokémon</span>
-<span class="c-keyword">const</span> <span class="c-var">poke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>();
-console.<span class="c-fn">log</span>(<span class="c-var">poke</span>.<span class="c-prop">name</span>);     <span class="c-comment">// "Charizard"</span>
+<span class="c-comment">// 8 Supported Locales</span>
+<span class="c-keyword">const</span> <span class="c-var">jpUser</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>({ <span class="c-var">locale</span>: <span class="c-str">'jp'</span> });
+console.<span class="c-fn">log</span>(<span class="c-var">jpUser</span>.<span class="c-prop">fullName</span>); <span class="c-comment">// "Haruto Tanaka"</span>
 
-<span class="c-comment">// A fresh joke every time</span>
-<span class="c-keyword">const</span> <span class="c-var">joke</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">joke</span>();
-console.<span class="c-fn">log</span>(<span class="c-var">joke</span>.<span class="c-prop">setup</span>);</pre>
+<span class="c-comment">// Time-series & Fraud Anomalies</span>
+<span class="c-keyword">const</span> <span class="c-var">ts</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">userTimeSeries</span>({ <span class="c-var">days</span>: <span class="c-num">30</span> });
+console.<span class="c-fn">log</span>(<span class="c-var">ts</span>.<span class="c-prop">activity</span>.<span class="c-prop">length</span>);</pre>
       </div>
     </div>
   </header>
@@ -96,18 +96,18 @@ console.<span class="c-fn">log</span>(<span class="c-var">joke</span>.<span clas
   <!-- ── STATS BAR ──────────────────────────────────────────── -->
   <section class="stats-bar">
     <div class="stat-item">
-      <span class="stat-num" data-target="800">0</span>
-      <span class="stat-label">Pokémon</span>
+      <span class="stat-num" data-target="109">0</span>
+      <span class="stat-label">Data Columns</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
-      <span class="stat-num" data-target="300">0</span>
-      <span class="stat-label">Anime Quotes</span>
+      <span class="stat-num" data-target="8">0</span>
+      <span class="stat-label">Locales</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
-      <span class="stat-num" data-target="500">0</span>
-      <span class="stat-label">Jokes</span>
+      <span class="stat-num" data-target="8">0</span>
+      <span class="stat-label">Anomaly Types</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
@@ -221,13 +221,11 @@ console.<span class="c-fn">log</span>(<span class="c-var">joke</span>.<span clas
               <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
             </svg>
           </div>
-          <h3>Content & Chatbots</h3>
-          <p>Power chatbots, content generation scripts, and Slack bots with curated jokes, facts, anime quotes, and
-            fortunes.</p>
+          <h3>Fraud Detection Training</h3>
+          <p>Inject statistical anomalies like velocity attacks, geo-impossible logins, and credit fraud to train classifiers.</p>
           <div class="uc-code-block">
-            <pre><span class="c-comment">// Daily fact bot</span>
-<span class="c-keyword">const</span> <span class="c-var">q</span> <span class="c-op">=</span> <span class="c-var">fakedata</span>.<span class="c-var">anime</span>.<span class="c-fn">quote</span>();
-<span class="c-var">slack</span>.<span class="c-fn">post</span>(<span class="c-var">q</span>.<span class="c-prop">quote</span>);</pre>
+            <pre><span class="c-comment">// 5% anomalous users</span>
+<span class="c-keyword">const</span> <span class="c-var">data</span> <span class="c-op">=</span> <span class="c-var">fd</span>.<span class="c-fn">users</span>(<span class="c-num">10k</span>, { <span class="c-var">anomaly_rate</span>: <span class="c-num">0.05</span> });</pre>
           </div>
         </div>
 
@@ -252,26 +250,26 @@ console.<span class="c-fn">log</span>(<span class="c-var">joke</span>.<span clas
           </div>
           <pre class="demo-output" id="out-user">// Click Generate</pre>
         </div>
-        <div class="demo-card" id="demo-pokemon">
+        <div class="demo-card" id="demo-locale">
           <div class="demo-card-header">
-            <span class="demo-card-label"> Pokémon</span>
-            <button class="refresh-btn" onclick="genPokemon()">↻ Generate</button>
+            <span class="demo-card-label"> Locale-Aware (JP)</span>
+            <button class="refresh-btn" onclick="genLocale()">↻ Generate</button>
           </div>
-          <pre class="demo-output" id="out-pokemon">// Click Generate</pre>
+          <pre class="demo-output" id="out-locale">// Click Generate</pre>
         </div>
-        <div class="demo-card" id="demo-joke">
+        <div class="demo-card" id="demo-ts">
           <div class="demo-card-header">
-            <span class="demo-card-label"> Joke</span>
-            <button class="refresh-btn" onclick="genJoke()">↻ Generate</button>
+            <span class="demo-card-label"> Time-Series Activity</span>
+            <button class="refresh-btn" onclick="genTs()">↻ Generate</button>
           </div>
-          <pre class="demo-output" id="out-joke">// Click Generate</pre>
+          <pre class="demo-output" id="out-ts">// Click Generate</pre>
         </div>
-        <div class="demo-card" id="demo-anime">
+        <div class="demo-card" id="demo-anomaly">
           <div class="demo-card-header">
-            <span class="demo-card-label"> Anime Quote</span>
-            <button class="refresh-btn" onclick="genAnime()">↻ Generate</button>
+            <span class="demo-card-label"> Fraud Anomaly</span>
+            <button class="refresh-btn" onclick="genAnomaly()">↻ Generate</button>
           </div>
-          <pre class="demo-output" id="out-anime">// Click Generate</pre>
+          <pre class="demo-output" id="out-anomaly">// Click Generate</pre>
         </div>
       </div>
     </div>
@@ -295,10 +293,10 @@ console.<span class="c-fn">log</span>(<span class="c-var">joke</span>.<span clas
             <button class="copy-btn-sm" onclick="copyText('npm install @abhay557/fakedata', this)">Copy</button>
           </div>
           <pre class="lang-example"><span class="c-keyword">const</span> <span class="c-var">fd</span> <span class="c-op">=</span> <span class="c-fn">require</span>(<span class="c-str">'@abhay557/fakedata'</span>);
-<span class="c-var">fd</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>();
-<span class="c-var">fd</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>();
-<span class="c-var">fd</span>.<span class="c-var">anime</span>.<span class="c-fn">quote</span>();
-<span class="c-var">fd</span>.<span class="c-var">animals</span>.<span class="c-fn">random_animal</span>();</pre>
+<span class="c-var">fd</span>.<span class="c-var">data</span>.<span class="c-fn">users</span>(<span class="c-num">1000</span>);
+<span class="c-var">fd</span>.<span class="c-var">data</span>.<span class="c-fn">userTimeSeries</span>({ <span class="c-var">days</span>: <span class="c-num">30</span> });
+<span class="c-var">fd</span>.<span class="c-var">data</span>.<span class="c-fn">usersToCSV</span>(<span class="c-num">1000</span>);
+<span class="c-var">fd</span>.<span class="c-var">data</span>.<span class="c-fn">usersFlat</span>(<span class="c-num">10</span>);</pre>
         </div>
         <div class="install-card">
           <div class="install-card-header">
@@ -310,10 +308,10 @@ console.<span class="c-fn">log</span>(<span class="c-var">joke</span>.<span clas
             <button class="copy-btn-sm" onclick="copyText('npm install @abhay557/fakedata', this)">Copy</button>
           </div>
           <pre class="lang-example"><span class="c-keyword">import</span> <span class="c-var">fakedata</span> <span class="c-keyword">from</span> <span class="c-str">'@abhay557/fakedata'</span>;
-<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>();
-<span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>();
-<span class="c-var">fakedata</span>.<span class="c-var">anime</span>.<span class="c-fn">quote</span>();
-<span class="c-var">fakedata</span>.<span class="c-var">animals</span>.<span class="c-fn">random_animal</span>();</pre>
+<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">users</span>(<span class="c-num">1000</span>);
+<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">userTimeSeries</span>({ <span class="c-var">days</span>: <span class="c-num">30</span> });
+<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">usersToCSV</span>(<span class="c-num">1000</span>);
+<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">usersFlat</span>(<span class="c-num">10</span>);</pre>
         </div>
         <div class="install-card">
           <div class="install-card-header">
@@ -325,10 +323,10 @@ console.<span class="c-fn">log</span>(<span class="c-var">joke</span>.<span clas
             <button class="copy-btn-sm" onclick="copyText('pip install fakedata-python', this)">Copy</button>
           </div>
           <pre class="lang-example"><span class="c-keyword">import</span> <span class="c-var">fakedata</span>
-<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user</span>()
-<span class="c-var">fakedata</span>.<span class="c-var">fun</span>.<span class="c-fn">pokemon</span>()
-<span class="c-var">fakedata</span>.<span class="c-var">anime</span>.<span class="c-fn">quote</span>()
-<span class="c-var">fakedata</span>.<span class="c-var">animals</span>.<span class="c-fn">random_animal</span>()</pre>
+<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">users</span>(<span class="c-num">1000</span>)
+<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">user_time_series</span>({<span class="c-str">"days"</span>: <span class="c-num">30</span>})
+<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">users_to_csv</span>(<span class="c-num">1000</span>)
+<span class="c-var">fakedata</span>.<span class="c-var">data</span>.<span class="c-fn">users_flat</span>(<span class="c-num">10</span>)</pre>
         </div>
       </div>
     </div>

@@ -66,13 +66,13 @@ function setOutput(elId, data) {
 }
 
 window.genUser    = function() { setOutput('out-user',    generateUser()); };
-window.genPokemon = function() { setOutput('out-pokemon', generatePokemon()); };
-window.genJoke    = function() { setOutput('out-joke',    generateJoke()); };
-window.genAnime   = function() { setOutput('out-anime',   generateAnime()); };
+window.genLocale  = function() { setOutput('out-locale',  generateLocaleUser()); };
+window.genTs      = function() { setOutput('out-ts',      generateTimeSeries()); };
+window.genAnomaly = function() { setOutput('out-anomaly', generateAnomaly()); };
 
 // Auto-generate on load
 window.addEventListener('DOMContentLoaded', () => {
-  genUser(); genPokemon(); genJoke(); genAnime();
+  genUser(); genLocale(); genTs(); genAnomaly();
 });
 
 // ── Animated Counters ──
