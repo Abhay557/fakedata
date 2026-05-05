@@ -72,6 +72,187 @@ print(f"Generated {len(ts['activity'])} events for {ts['user']['fullName']}")
 ```
 
 ---
+### sample output - one user
+```fakedata.data.user()``` 
+```fakedata.data.user(n) // set n = 100```
+
+```json
+  "id": "4612",
+  "fullName": "Damaris Carlo Ebervale",
+  "firstName": "Damaris",
+  "lastName": "Ebervale",
+  "middleName": "Carlo",
+  "age": 31,
+  "gender": "non-binary",
+  "email": "damaris.ebervale@liberomail.com",
+  "phone": "+1 7469125114",
+  "username": "damaris_4612",
+  "password": "UQ!VZr0cLUD9",
+  "birthDate": "1995-07-19",
+  "bloodGroup": "+B",
+  "height": 185,
+  "weight": 60,
+  "domain": "damarisebervale.vg",
+  "ip": "48.50.80.113",
+  "macaddress": "33:2F:39:EE:3B:1E",
+  "address": {
+    "street": "3623 Chateau Lane",
+    "city": "Kilgore",
+    "state": "Texas",
+    "country": "Sierra Leone",
+    "countryCode": "SL",
+    "zipCode": 36434,
+    "coordinates": {
+      "latitude": "-68.324385",
+      "longitude": "55.859967"
+    }
+  },
+  "demographics": {
+    "ethnicity": "Hispanic",
+    "nationality": "South Korean",
+    "language": {
+      "primary": "Arabic",
+      "secondary": "Turkish"
+    },
+    "relationshipStatus": "dating"
+  },
+  "education": {
+    "level": "Bachelor's",
+    "field": "Computer Science",
+    "institution": "Agricultural University of Lublin",
+    "institutionCountry": "Poland",
+    "gpa": 2.79,
+    "graduationYear": 2017,
+    "studentDebt": 64117
+  },
+  "employment": {
+    "status": "self-employed",
+    "company": "China CITIC Bank",
+    "companySize": "enterprise",
+    "industry": "Banking",
+    "jobTitle": "\"ORACLE DBA\"",
+    "jobCategory": "Network Engineering",
+    "yearsExperience": 10,
+    "workMode": "onsite",
+    "workHoursPerWeek": 36,
+    "jobSatisfaction": 6
+  },
+  "financial": {
+    "annualIncome": 21600,
+    "creditScore": 464,
+    "savings": 1680,
+    "monthlyExpenses": 1309,
+    "debtToIncome": 3.12,
+    "taxBracket": "12%",
+    "investmentStyle": "moderate",
+    "homeOwnership": "own"
+  },
+  "health": {
+    "bmi": 17.5,
+    "bmiCategory": "underweight",
+    "bloodPressure": {
+      "systolic": 100,
+      "diastolic": 82
+    },
+    "exerciseFrequency": "3-4 times/week",
+    "smoking": "never",
+    "alcohol": "never",
+    "sleepHoursPerNight": 8.3,
+    "sleepQuality": "poor",
+    "diet": "mediterranean",
+    "medicalCondition": "None",
+    "insuranceProvider": "UnitedHealthcare",
+    "medications": [
+      "Lisinopril"
+    ],
+    "lastCheckupMonthsAgo": 11,
+    "hasDisability": false,
+    "mentalHealth": "poor",
+    "vaccination": "partially vaccinated"
+  },
+  "social": {
+    "socialMedia": {
+      "platforms": [
+        "Pinterest",
+        "Twitter/X",
+        "Reddit",
+        "Instagram"
+      ],
+      "screenTimeHoursPerDay": 3.8,
+      "preferredContent": "video"
+    },
+    "shopping": {
+      "frequency": "weekly",
+      "preferredCategories": [
+        "toys & games",
+        "books"
+      ],
+      "monthlyOnlineSpending": 175
+    },
+    "newsSource": "social media",
+    "travelFrequency": "weekly",
+    "volunteers": false,
+    "pet": "multiple"
+  },
+  "digitalFootprint": {
+    "accountCreatedAt": "2021-04-01T09:59:41.867116+00:00",
+    "lastLoginAt": "2026-04-24T09:59:41.867116+00:00",
+    "lastPasswordChangeAt": "2025-11-06T09:59:41.867116+00:00",
+    "userAgent": "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/121.0.0.0 Mobile Safari/537.36",
+    "browser": "Chrome",
+    "os": "Windows 11",
+    "referrer": "facebook.com",
+    "avgSessionMinutes": 17.6,
+    "sessionsPerWeek": 10,
+    "totalSessions": 2666,
+    "twoFactorEnabled": false,
+    "preferredLanguage": "de",
+    "accountStatus": "inactive",
+    "verifiedEmail": false,
+    "verifiedPhone": true
+  },
+  "bank": {
+    "nameOnCard": "Damaris Carlo Ebervale",
+    "cardNumber": "2289970210128357",
+    "cardType": "Mastercard",
+    "cardExpiry": "5/29",
+    "cardCvv": "355"
+  },
+  "hobbies": [
+    "Knitting",
+    "Gardening",
+    "LARPing"
+  ],
+  "technology_profile": {
+    "devices": {
+      "additional_devices": [
+        "BlackBerry Bold 9790",
+        "Nokia N9"
+      ],
+      "smartphone": "Sony Ericsson Xperia X10"
+    },
+    "phone_preferences": {
+      "critical_features": [
+        "security features",
+        "reliability",
+        "5G connectivity"
+      ],
+      "primary_uses": [
+        "photography",
+        "education",
+        "organization"
+      ]
+    },
+    "interest": [
+      "Knitting",
+      "Gardening",
+      "LARPing"
+    ]
+  }
+}
+
+```
+---
 
 ## Advanced Features Reference
 
