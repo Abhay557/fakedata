@@ -30,6 +30,16 @@ const healthcareData = loadData('healthcare.json');
 // Phase 4 datasets
 const localesData = loadData('locales.json');
 
+// ─── Personas for Realistic Distribution ───────────────────────────────────
+const PERSONAS = [
+    { type: "Executive", weight: 5, incomeMult: 3.5, techBias: "Apple", lifestyle: "luxury" },
+    { type: "Tech Professional", weight: 20, incomeMult: 2.2, techBias: "High-End", lifestyle: "modern" },
+    { type: "Student", weight: 15, incomeMult: 0.4, techBias: "Mid-Range", lifestyle: "frugal" },
+    { type: "Manual Laborer", weight: 25, incomeMult: 0.9, techBias: "Budget", lifestyle: "basic" },
+    { type: "Service Worker", weight: 25, incomeMult: 0.8, techBias: "Budget", lifestyle: "basic" },
+    { type: "Freelancer", weight: 10, incomeMult: 1.2, techBias: "Mid-Range", lifestyle: "flexible" }
+];
+
 // ─── Seedable RNG (Phase 3) ─────────────────────────────────────────────────
 /**
  * Mulberry32: A fast, high-quality 32-bit seedable PRNG.
@@ -134,10 +144,19 @@ const EDUCATION_FIELDS = [
     "Environmental Science", "Education"
 ];
 
-const generateEducation = (age) => {
+const generateEducation = (age, persona) => {
     // Filter education levels by age eligibility
     const eligible = EDUCATION_LEVELS.filter(e => age >= e.minAge);
-    const weights = eligible.map(e => e.weight);
+    
+    // Adjust weights based on persona
+    const weights = eligible.map(e => {
+        let w = e.weight;
+        if (persona.type === "Executive" && (e.level === "Master's" || e.level === "PhD")) w *= 3;
+        if (persona.type === "Manual Laborer" && (e.level === "High School" || e.level === "Dropout")) w *= 2;
+        if (persona.type === "Student" && age < 25) w *= 2;
+        return w;
+    });
+    
     const selectedIndex = weightedRandom(weights);
     const selected = eligible[selectedIndex];
 
@@ -203,14 +222,18 @@ const WORK_MODES = [
     { mode: "remote", weight: 20 },
 ];
 
-const generateEmployment = (age, education) => {
+const generateEmployment = (age, education, persona) => {
     // Filter eligible statuses by age
     const eligible = EMPLOYMENT_STATUSES.filter(s => age >= s.minAge && age <= s.maxAge);
-    // Boost "student" weight if age < 25 and education is Bachelor's or less
+    
+    // Boost status weight based on persona
     const weights = eligible.map(s => {
-        if (s.status === "student" && age < 25) return s.weight * 2;
-        if (s.status === "retired" && age >= 65) return s.weight * 3;
-        return s.weight;
+        let w = s.weight;
+        if (persona.type === "Executive" && s.status === "employed") w *= 2;
+        if (persona.type === "Freelancer" && s.status === "freelancer") w *= 5;
+        if (persona.type === "Student" && s.status === "student") w *= 4;
+        if (s.status === "retired" && age >= 65) w *= 3;
+        return w;
     });
     const statusIndex = weightedRandom(weights);
     const employmentStatus = eligible[statusIndex].status;
@@ -276,7 +299,7 @@ const TAX_BRACKETS = [
     { min: 578126, max: Infinity, rate: "37%" },
 ];
 
-const generateFinancial = (age, education, employment) => {
+const generateFinancial = (age, education, employment, persona) => {
     // Base income multipliers by education level
     const incomeMultipliers = {
         "High School": 1.0, "Associate's": 1.3, "Bachelor's": 1.8,
@@ -296,7 +319,9 @@ const generateFinancial = (age, education, employment) => {
         const range = salaryRangesData[roleKey];
         const baseSalaryINR = Math.floor(normalRandom(range.median, (range.p75 - range.p25) / 2));
         const baseSalaryUSD = Math.round(clamp(baseSalaryINR / 80, 15000, 500000));
-        annualIncome = Math.round(baseSalaryUSD * eduMultiplier * ageFactor);
+        
+        // Final annual income influenced by Persona and Education
+        annualIncome = Math.round(baseSalaryUSD * eduMultiplier * ageFactor * persona.incomeMult);
     } else if (employment.status === "retired") {
         annualIncome = Math.round(rng() * 40000 + 20000); // pension/SS
     } else {
@@ -559,12 +584,13 @@ const SHOPPING_CATEGORIES = [
     "health & beauty", "sports", "toys & games", "automotive", "pet supplies"
 ];
 
-const generateSocial = (age, employment) => {
+const generateSocial = (age, employment, persona) => {
     // Social media (younger = more platforms)
-    const numPlatforms = age < 25 ? Math.floor(rng() * 4) + 3
-        : age < 40 ? Math.floor(rng() * 3) + 2
-        : age < 60 ? Math.floor(rng() * 2) + 1
-        : Math.floor(rng() * 2);
+    let basePlatforms = age < 25 ? 4 : age < 40 ? 3 : age < 60 ? 1 : 0;
+    if (persona.type === "Tech Professional") basePlatforms += 2;
+    if (persona.type === "Executive") basePlatforms += 1;
+
+    const numPlatforms = Math.floor(rng() * 3) + basePlatforms;
     const platforms = [];
     const available = [...SOCIAL_PLATFORMS];
     for (let i = 0; i < Math.min(numPlatforms, available.length); i++) {
@@ -969,14 +995,17 @@ const generateSingleUser = (idIndex = null, schema = null, locale = null) => {
     // Weighted age generation
     const age = generateAge();
 
+    // Pick a Persona to drive statistical correlations
+    const persona = PERSONAS[weightedRandom(PERSONAS.map(p => p.weight))];
+
     // Correlated education
-    const education = generateEducation(age);
+    const education = generateEducation(age, persona);
 
     // Correlated employment
-    const employment = generateEmployment(age, education);
+    const employment = generateEmployment(age, education, persona);
 
     // Correlated financial profile
-    const financial = generateFinancial(age, education, employment);
+    const financial = generateFinancial(age, education, employment, persona);
 
     // Demographics
     const demographics = generateDemographics(age);
@@ -989,10 +1018,10 @@ const generateSingleUser = (idIndex = null, schema = null, locale = null) => {
     const health = generateHealth(age, heightCm, weightKg);
 
     // Phase 2: Social & behavioral profile
-    const social = generateSocial(age, employment);
+    const social = generateSocial(age, employment, persona);
 
     // Phase 3: Digital footprint
-    const digitalFootprint = generateDigitalFootprint(age);
+    const digitalFootprint = generateDigitalFootprint(age, persona);
 
     // Card info
     const cardNumber = Math.floor(rng() * 10000000000000000);
@@ -1090,7 +1119,12 @@ const generateSingleUser = (idIndex = null, schema = null, locale = null) => {
             cardCvv: `${cardCvv}`,
         },
         hobbies: userHobbies,
-        technology_profile: techProfile
+        technology_profile: techProfile,
+        persona: persona.type,
+        metadata: {
+            version: "2.1.0",
+            generation_timestamp: new Date().toISOString()
+        }
     };
 
     // Phase 4: Apply locale country override

@@ -1,6 +1,7 @@
 import random
 import string
 import math
+import datetime
 from ..core import load_data
 
 # ─── Data Loading ───────────────────────────────────────────────────────────
@@ -31,6 +32,16 @@ healthcare_data = load_data('healthcare.json')
 
 # Phase 4 datasets
 locales_data = load_data('locales.json')
+
+# ─── Personas for Realistic Distribution ───────────────────────────────────
+PERSONAS = [
+    {"type": "Executive", "weight": 5, "income_mult": 3.5, "tech_bias": "Apple", "lifestyle": "luxury"},
+    {"type": "Tech Professional", "weight": 20, "income_mult": 2.2, "tech_bias": "High-End", "lifestyle": "modern"},
+    {"type": "Student", "weight": 15, "income_mult": 0.4, "tech_bias": "Mid-Range", "lifestyle": "frugal"},
+    {"type": "Manual Laborer", "weight": 25, "income_mult": 0.9, "tech_bias": "Budget", "lifestyle": "basic"},
+    {"type": "Service Worker", "weight": 25, "income_mult": 0.8, "tech_bias": "Budget", "lifestyle": "basic"},
+    {"type": "Freelancer", "weight": 10, "income_mult": 1.2, "tech_bias": "Mid-Range", "lifestyle": "flexible"}
+]
 
 
 # ─── Utility Functions ──────────────────────────────────────────────────────
@@ -97,10 +108,22 @@ EDUCATION_FIELDS = [
 ]
 
 
-def generate_education(age):
+def generate_education(age, persona):
     # Filter education levels by age eligibility
     eligible = [e for e in EDUCATION_LEVELS if age >= e["min_age"]]
-    weights = [e["weight"] for e in eligible]
+    
+    # Adjust weights based on persona
+    weights = []
+    for e in eligible:
+        w = e["weight"]
+        if persona["type"] == "Executive" and e["level"] in ["Master's", "PhD"]:
+            w *= 3
+        if persona["type"] == "Manual Laborer" and e["level"] in ["High School", "Dropout"]:
+            w *= 2
+        if persona["type"] == "Student" and age < 25:
+            w *= 2
+        weights.append(w)
+    
     selected_index = weighted_random(weights)
     selected = eligible[selected_index]
 
@@ -169,16 +192,20 @@ WORK_MODES = [
 ]
 
 
-def generate_employment(age, education):
+def generate_employment(age, education, persona):
     # Filter eligible statuses by age
     eligible = [s for s in EMPLOYMENT_STATUSES if age >= s["min_age"] and age <= s["max_age"]]
 
-    # Boost weights contextually
+    # Boost weights based on persona
     weights = []
     for s in eligible:
         w = s["weight"]
-        if s["status"] == "student" and age < 25:
+        if persona["type"] == "Executive" and s["status"] == "employed":
             w *= 2
+        if persona["type"] == "Freelancer" and s["status"] == "freelancer":
+            w *= 5
+        if persona["type"] == "Student" and s["status"] == "student":
+            w *= 4
         if s["status"] == "retired" and age >= 65:
             w *= 3
         weights.append(w)
@@ -250,7 +277,7 @@ TAX_BRACKETS = [
 ]
 
 
-def generate_financial(age, education, employment):
+def generate_financial(age, education, employment, persona):
     # Base income multipliers by education level
     income_multipliers = {
         "High School": 1.0, "Associate's": 1.3, "Bachelor's": 1.8,
@@ -277,7 +304,9 @@ def generate_financial(age, education, employment):
         sr = salary_ranges_data[role_key]
         base_salary_inr = normal_random(sr["median"], (sr["p75"] - sr["p25"]) / 2)
         base_salary_usd = round(clamp(base_salary_inr / 80, 15000, 500000))
-        annual_income = round(base_salary_usd * edu_multiplier * age_factor)
+        
+        # Income influenced by Persona and Education
+        annual_income = round(base_salary_usd * edu_multiplier * age_factor * persona["income_mult"])
     elif employment["status"] == "retired":
         annual_income = round(random.uniform(20000, 60000))
     else:
@@ -994,14 +1023,17 @@ def generate_single_user(id_index=None, schema=None, locale=None):
     # Weighted age generation
     age = generate_age()
 
+    # Pick a Persona to drive statistical correlations
+    persona = PERSONAS[weighted_random([p["weight"] for p in PERSONAS])]
+
     # Correlated education
-    education = generate_education(age)
+    education = generate_education(age, persona)
 
     # Correlated employment
-    employment = generate_employment(age, education)
+    employment = generate_employment(age, education, persona)
 
     # Correlated financial profile
-    financial = generate_financial(age, education, employment)
+    financial = generate_financial(age, education, employment, persona)
 
     # Demographics
     demographics = generate_demographics(age)
@@ -1111,7 +1143,12 @@ def generate_single_user(id_index=None, schema=None, locale=None):
             "cardCvv": str(card_cvv),
         },
         "hobbies": user_hobbies,
-        "technology_profile": tech_profile
+        "technology_profile": tech_profile,
+        "persona": persona["type"],
+        "metadata": {
+            "version": "2.1.0",
+            "generation_timestamp": datetime.datetime.utcnow().isoformat() + "Z"
+        }
     }
 
     # Phase 4: Apply locale country override

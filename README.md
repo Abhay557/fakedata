@@ -9,9 +9,10 @@ A high-performance, **zero-dependency** synthetic data generation engine, availa
 
 ## Overview
 
-`fakedata` has been completely rebuilt from the ground up to serve as an **ML-ready synthetic data engine**. It generates deeply interconnected user profiles with **109 flat columns across 13 domains** (Health, Financial, Employment, Digital Footprint, etc.), making it the perfect tool for training models, benchmarking pipelines, or simulating realistic databases.
+`fakedata` has been completely rebuilt from the ground up to serve as an **ML-ready synthetic data engine**. It generates deeply interconnected user profiles with **112 flat columns across 13 domains** (Health, Financial, Employment, Digital Footprint, etc.), making it the perfect tool for training models, benchmarking pipelines, or simulating realistic databases.
 
 ###  Machine Learning Power Features:
+- **Behavioral Personas**: Orchestrate correlations through 6 distinct personas (e.g., Executive, Student, Tech Pro) to ensure realistic socio-economic patterns.
 - **Seed Reproducibility**: Generate byte-for-byte identical datasets across runs (and languages!) using `seed`.
 - **Schema Overrides**: Force specific distributions (e.g., age ranges, income brackets, genders) using `schema`.
 - **Locale-Aware Generation**: Support for 8 culture-specific name sets and phone formats (`en`, `in`, `jp`, `kr`, `de`, `br`, `ar`, `fr`).
@@ -111,8 +112,23 @@ const options = {
 | `data.users(n, opts?)` | `data.users(n, opts=None)` | Generate an array/list of `n` users. |
 | `data.userTimeSeries(opts)` | `data.user_time_series(opts)`| Returns `{ user, activity }` containing chronological event logs. |
 | `data.usersFlat(n, opts?)` | `data.users_flat(n, opts=None)`| Returns flat dicts/objects, perfect for `pandas.DataFrame` ingestion. |
-| `data.usersToCSV(n, opts?)` | `data.users_to_csv(n, opts=None)`| Returns a fully formatted CSV string (109 columns). |
+| `data.usersToCSV(n, opts?)` | `data.users_to_csv(n, opts=None)`| Returns a fully formatted CSV string (112 columns). |
 | `data.usersToJSON(n, opts?)`| `data.users_to_json(n, opts=None)`| Returns a pretty-printed JSON string. |
+
+### 3. Behavioral Personas (Statistical Modeling)
+To ensure the data is useful for **Clustering** and **Regression** analysis, `fakedata` uses a **Persona-driven engine**. Every user is assigned one of 6 personas that orchestrate their life outcomes:
+
+- **Executive**: High income, high education (Master's/PhD), premium Apple devices, luxury lifestyle.
+- **Tech Professional**: High income, high-end hardware, heavy social media use, remote work bias.
+- **Student**: Low income, high student debt, budget/mid-range tech, high social media footprint.
+- **Manual Laborer / Service Worker**: Budget-conscious, steady income, consistent employment patterns.
+- **Freelancer**: Flexible work modes, variable income ranges, mid-range tech profile.
+
+These personas ensure that an analyst looking at your synthetic data will find **statistically significant clusters** rather than just a uniform cloud of random values.
+
+---
+
+## Data Structure Highlights (112 Columns)
 
 ### 3. Locale-Aware Name Generation
 Supports 8 locales with culturally accurate first names, last names, and country/phone codes:
