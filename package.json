@@ -1,9 +1,12 @@
 {
   "name": "@abhay557/fakedata",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "The fakedata package generates realistic synthetic user profiles for machine learning, deep learning, data analysis, and data science workflows.",
   "main": "src/index.js",
   "types": "src/index.d.ts",
+  "bin": {
+    "fakedata": "src/cli.js"
+  },
   "scripts": {
     "test": "node test.js"
   },
@@ -17,7 +20,8 @@
     "data analysis",
     "data science",
     "fraud detection",
-    "synthetic data"
+    "synthetic data",
+    "cli"
   ],
   "author": "abhay557",
   "license": "MIT",

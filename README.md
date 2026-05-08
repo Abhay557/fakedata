@@ -21,6 +21,7 @@ A high-performance, **zero-dependency** synthetic data generation engine, availa
 - **Anomaly Injection**: Inject fraud/outlier profiles (e.g., impossible geography, credit fraud, income spikes) using `anomaly_rate`.
 - **Time-Series Data**: Generate chronological activity logs (logins, page views, purchases) per user for behavioral modeling.
 - **Pipeline Ready**: Export directly to CSV, JSON, or Flat objects (perfect for `pandas.DataFrame`).
+- **CLI Tool**: Generate and export datasets directly from your terminal — no scripting required.
 
 ---
 
@@ -70,6 +71,64 @@ print(df.head())
 # Create time-series activity data
 ts = data.user_time_series({"days": 30, "events_per_day": 8})
 print(f"Generated {len(ts['activity'])} events for {ts['user']['fullName']}")
+```
+
+---
+
+##  CLI — Command Line Interface
+
+After installing, use `fakedata` directly from your terminal. No scripts needed!
+
+### Node.js (global install)
+```bash
+npm install -g @abhay557/fakedata
+```
+
+### Python (global install)
+```bash
+pip install fakedata-python
+```
+
+### CLI Commands
+
+| Command | Description |
+|:---|:---|
+| `fakedata generate` | Generate synthetic user data |
+| `fakedata preview` | Print a single user profile to the console |
+| `fakedata help` | Show all available options |
+
+### CLI Options
+
+| Flag | Default | Description |
+|:---|:---|:---|
+| `-n`, `--count` | `10` | Number of users to generate |
+| `-f`, `--format` | `json` | Output format: `json` \| `csv` \| `flat` |
+| `-o`, `--output` | stdout | Output file path |
+| `-s`, `--seed` | none | Random seed for reproducibility |
+| `-l`, `--locale` | `en` | Locale: `en` \| `in` \| `jp` \| `kr` \| `de` \| `br` \| `ar` \| `fr` |
+| `-a`, `--anomaly-rate` | `0` | Fraction of anomalous users (0–1) |
+| `-m`, `--missing-rate` | `0` | Fraction of null fields (0–1) |
+| `-t`, `--timeseries` | — | Include time-series activity logs |
+| `--days` | `30` | Days of activity for time-series |
+| `--pretty` | — | Pretty-print JSON output |
+
+### Examples
+
+```bash
+# Generate 1000 users and save as CSV
+fakedata generate -n 1000 -f csv -o dataset.csv
+
+# Generate 500 deterministic Indian users
+fakedata generate -n 500 -l in --seed 42 -o india.json
+
+# Fraud detection dataset with 5% anomalies
+fakedata generate -n 10000 -a 0.05 -f csv -o fraud_data.csv
+
+# Preview a single user in the console
+fakedata preview
+
+# Time-series activity logs for 100 users
+fakedata generate -n 100 --timeseries --days 60 -o activity.json
 ```
 
 ---
