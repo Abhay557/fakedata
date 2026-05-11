@@ -34,13 +34,13 @@ npm install @abhay557/fakedata
 
 ### Quick Start
 ```javascript
-const { data } = require('@abhay557/fakedata');
+const fakedata = require('@abhay557/fakedata');
 
 // Generate deterministic users with a 5% missing data rate (null injection)
-const users = data.users(1000, { seed: 42, missing_rate: 0.05 });
+const users = fakedata.data.users(1000, { seed: 42, missing_rate: 0.05 });
 
 // Export directly to CSV format
-const csvString = data.usersToCSV(1000, { seed: 42 });
+const csvString = fakedata.data.usersToCSV(1000, { seed: 42 });
 
 // Time-series activity data
 const ts = data.userTimeSeries({ days: 30, eventsPerDay: 8 });
@@ -58,14 +58,14 @@ pip install fakedata-python
 
 ### Quick Start
 ```python
-import fakedata.data as data
+import fakedata
 import pandas as pd
 
 # Generate 10,000 highly correlated users deterministically
-users = data.users(10000, {"seed": 42})
+users = fakedata.data.users(10000, {"seed": 42})
 
 # Or export directly to a Pandas DataFrame
-df = pd.DataFrame(data.users_flat(10000, {"seed": 42}))
+df = pd.DataFrame(fakedata.data.users_flat(10000, {"seed": 42}))
 print(df.head())
 
 # Create time-series activity data
