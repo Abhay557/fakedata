@@ -423,3 +423,21 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 **Maintainer**: [abhay557](https://github.com/abhay557)
 
 - Project Commit History - `https://github.com/abhay557/random-api.xyz`
+
+---
+
+## Contributing
+
+Contributions are welcome! Whether it's a bug fix, a new feature, or improved docs — every bit helps.
+
+- Read the [Contributing Guide](./CONTRIBUTING.md) before submitting a PR.
+- Use the [Bug Report](https://github.com/abhay557/fakedata/issues/new?template=bug_report.md) template to report issues.
+- Use the [Feature Request](https://github.com/abhay557/fakedata/issues/new?template=feature_request.md) template to suggest ideas.
+- Please follow our [Code of Conduct](./CODE_OF_CONDUCT.md) in all interactions.
+
+```bash
+# Fork the repo, then:
+git clone https://github.com/YOUR_USERNAME/fakedata.git
+git checkout -b feature/my-improvement
+# Make your changes, then open a Pull Request!
+```
