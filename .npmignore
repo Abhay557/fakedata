@@ -34,7 +34,14 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+MANIFEST.in
 
 # Raw data and docs
 newdata/
 website/
+
+# GitHub and community files
+.github/
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+.npmignore

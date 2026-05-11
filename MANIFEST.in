@@ -1,0 +1,24 @@
+# Exclude development and Node.js files
+prune .github
+exclude CONTRIBUTING.md
+exclude CODE_OF_CONDUCT.md
+exclude .npmignore
+exclude test.js
+exclude test_py.py
+exclude test_python.py
+
+# Exclude JS source code
+prune src
+exclude package.json
+exclude package-lock.json
+
+# Exclude web and raw data
+prune website
+prune newdata
+prune dist
+prune tests
+
+# Exclude byte-compiled files
+global-exclude *.py[cod]
+global-exclude __pycache__
+global-exclude *.so

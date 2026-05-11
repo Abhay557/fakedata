@@ -43,7 +43,7 @@ const users = fakedata.data.users(1000, { seed: 42, missing_rate: 0.05 });
 const csvString = fakedata.data.usersToCSV(1000, { seed: 42 });
 
 // Time-series activity data
-const ts = data.userTimeSeries({ days: 30, eventsPerDay: 8 });
+const ts = fakedata.userTimeSeries({ days: 30, eventsPerDay: 8 });
 console.log(`Generated ${ts.activity.length} events for ${ts.user.fullName}`);
 ```
 
@@ -69,7 +69,7 @@ df = pd.DataFrame(fakedata.data.users_flat(10000, {"seed": 42}))
 print(df.head())
 
 # Create time-series activity data
-ts = data.user_time_series({"days": 30, "events_per_day": 8})
+ts = fakedata.data.user_time_series({"days": 30, "events_per_day": 8})
 print(f"Generated {len(ts['activity'])} events for {ts['user']['fullName']}")
 ```
 
