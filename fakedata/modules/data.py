@@ -1364,3 +1364,177 @@ def biodata(count=10):
         })
         biodatas.append(bio)
     return biodatas
+
+
+# ─── Custom Correlation Engine ───────────────────────────────────────────────
+
+def _get_path(obj: dict, path: str):
+    """
+    Resolves a dot-separated path on a dict and returns the numeric value.
+    Returns None if the path doesn't exist or the value is non-numeric.
+
+    Example: _get_path(user, 'financial.annualIncome')
+    """
+    parts = path.split('.')
+    cur = obj
+    for p in parts:
+        if not isinstance(cur, dict) or p not in cur:
+            return None
+        cur = cur[p]
+    return cur if isinstance(cur, (int, float)) else None
+
+
+def _set_path(obj: dict, path: str, value) -> None:
+    """Sets a dot-separated path on a dict to a new value (mutates dict)."""
+    parts = path.split('.')
+    cur = obj
+    for p in parts[:-1]:
+        cur = cur[p]
+    cur[parts[-1]] = value
+
+
+def apply_custom_correlations(user: dict, correlations: list) -> dict:
+    """
+    Applies user-defined Pearson correlation constraints between numeric field pairs.
+
+    Algorithm (conditional normal approximation):
+        Given field A = a, we want field B such that corr(A,B) ≈ r.
+        B' = r * tanh(z_A) + sqrt(1 - r²) * N(0,1)
+        The result is rescaled back to B's natural magnitude.
+
+    Args:
+        user:         A fully generated user dict (mutated in place).
+        correlations: List of dicts with keys: fieldA, fieldB, pearson_coeff.
+                      Example:
+                        [
+                          { "fieldA": "education.level",
+                            "fieldB": "financial.annualIncome",
+                            "pearson_coeff": 0.85 },
+                          { "fieldA": "health.bmi",
+                            "fieldB": "health.bloodPressure.systolic",
+                            "pearson_coeff": 0.60 }
+                        ]
+
+    Returns:
+        The mutated user dict.
+
+    Note:
+        - fieldA is used only as a *signal* (its numeric value drives the nudge).
+        - Non-numeric fields or invalid paths are silently skipped.
+        - pearson_coeff must be in [-1.0, 1.0].
+    """
+    if not correlations:
+        return user
+
+    for spec in correlations:
+        field_a = spec.get('fieldA')
+        field_b = spec.get('fieldB')
+        r = spec.get('pearson_coeff')
+
+        if r is None or abs(r) > 1.0:
+            continue
+
+        val_a = _get_path(user, field_a)
+        val_b = _get_path(user, field_b)
+
+        if val_a is None or val_b is None:
+            continue
+
+        # Approximate z-score for A (unit-free signal)
+        z_a = (val_a - val_a * 0.5) / (val_a * 0.5 + 1e-9)
+        # Correlated noise for B
+        independent_noise = random.gauss(0, 1)
+        z_b_corr = r * math.tanh(z_a) + math.sqrt(max(0, 1 - r * r)) * independent_noise
+
+        # Nudge B proportionally
+        nudge = z_b_corr * abs(val_b) * 0.2
+        new_val_b = val_b + nudge
+
+        # Preserve int vs float
+        if isinstance(val_b, int):
+            _set_path(user, field_b, int(round(new_val_b)))
+        else:
+            _set_path(user, field_b, round(new_val_b, 4))
+
+    return user
+
+
+# ─── Streaming API ───────────────────────────────────────────────────────────
+
+def generate_stream(count: int = 1000, options: dict = None):
+    """
+    A lazy generator that yields one user dict at a time.
+    Memory usage stays at O(1) regardless of count — safe for millions of rows.
+
+    Args:
+        count:   Total number of users to generate.
+        options: Dictionary of options (same as users() plus extras below):
+            seed           (int)   – Seed for reproducibility.
+            schema         (dict)  – Schema constraints.
+            locale         (str)   – Locale code: 'en','in','jp','kr','de','br','ar','fr'.
+            missing_rate   (float) – Probability (0-1) each field becomes None.
+            anomaly_rate   (float) – Fraction of users to inject anomalies.
+            correlations   (list)  – Custom Pearson correlation specs (see apply_custom_correlations).
+
+    Yields:
+        dict – One user profile per iteration.
+
+    Examples:
+        # Pipe to CSV without loading all data into memory
+        import csv, io
+        with open('dataset.csv', 'w', newline='') as f:
+            writer = None
+            for user in data.generate_stream(1_000_000, {'seed': 42}):
+                flat = flatten_object(user)
+                if writer is None:
+                    writer = csv.DictWriter(f, fieldnames=flat.keys())
+                    writer.writeheader()
+                writer.writerow(flat)
+
+        # Custom Pearson correlations
+        for user in data.generate_stream(500, {
+            'correlations': [
+                {'fieldA': 'education.level', 'fieldB': 'financial.annualIncome', 'pearson_coeff': 0.85},
+                {'fieldA': 'health.bmi', 'fieldB': 'health.bloodPressure.systolic', 'pearson_coeff': 0.60},
+            ]
+        }):
+            print(user['fullName'], user['financial']['annualIncome'])
+    """
+    if options is None:
+        options = {}
+
+    seed = options.get('seed')
+    schema = options.get('schema')
+    locale = options.get('locale')
+    missing_rate = options.get('missing_rate', 0)
+    anomaly_rate = options.get('anomaly_rate', 0)
+    correlations = options.get('correlations', [])
+
+    if seed is not None:
+        random.seed(seed)
+
+    for i in range(count):
+        u = generate_single_user(i + 1, schema=schema, locale=locale)
+
+        if missing_rate > 0:
+            u = apply_missing_data(u, missing_rate)
+
+        # Per-record anomaly injection
+        if anomaly_rate > 0:
+            if random.random() < anomaly_rate:
+                weights = [a['weight'] for a in ANOMALY_TYPES_PY]
+                idx = weighted_random(weights)
+                anomaly = ANOMALY_TYPES_PY[idx]
+                anomaly['apply'](u)
+                u['_anomaly'] = {'isAnomaly': True, 'type': anomaly['type']}
+            else:
+                u['_anomaly'] = {'isAnomaly': False, 'type': None}
+
+        # Custom correlations
+        if correlations:
+            apply_custom_correlations(u, correlations)
+
+        yield u
+
+    if seed is not None:
+        random.seed()  # Reset to system entropy

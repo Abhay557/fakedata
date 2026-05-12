@@ -6,6 +6,8 @@ exclude .npmignore
 exclude test.js
 exclude test_py.py
 exclude test_python.py
+exclude test_new_apis.py
+exclude test_new_apis.js
 
 # Exclude JS source code
 prune src

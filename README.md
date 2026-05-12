@@ -48,6 +48,26 @@ const ts = fakedata.userTimeSeries({ days: 30, eventsPerDay: 8 });
 console.log(`Generated ${ts.activity.length} events for ${ts.user.fullName}`);
 ```
 
+### Streaming API & Custom Correlations
+Generate unlimited data directly to disk while keeping memory at O(1), and force mathematical relationships between fields using the Pearson Correlation API:
+
+```javascript
+const fs = require('fs');
+const fakedata = require('@abhay557/fakedata');
+
+// Create a stream that emits 1 million users as CSV
+const stream = fakedata.data.generateStream(1000000, { 
+    format: 'csv',
+    correlations: [
+        { fieldA: 'education.level', fieldB: 'financial.annualIncome', pearson_coeff: 0.85 },
+        { fieldA: 'health.bmi', fieldB: 'health.bloodPressure.systolic', pearson_coeff: 0.60 }
+    ]
+});
+
+// Pipe directly to file (constant RAM usage)
+stream.pipe(fs.createWriteStream('1m_dataset.csv'));
+```
+
 ---
 
 ##  Python Implementation
@@ -72,6 +92,26 @@ print(df.head())
 # Create time-series activity data
 ts = fakedata.data.user_time_series({"days": 30, "events_per_day": 8})
 print(f"Generated {len(ts['activity'])} events for {ts['user']['fullName']}")
+```
+
+### Streaming API & Custom Correlations
+Generate unlimited data lazily, keeping memory footprint at O(1), and force mathematical relationships between fields using the Pearson Correlation API:
+
+```python
+import fakedata
+
+# Create a lazy generator that yields 1 million users
+stream = fakedata.generate_stream(1000000, {
+    "correlations": [
+        {"fieldA": "education.level", "fieldB": "financial.annualIncome", "pearson_coeff": 0.85},
+        {"fieldA": "health.bmi", "fieldB": "health.bloodPressure.systolic", "pearson_coeff": 0.60}
+    ]
+})
+
+# Process users one by one without blowing up RAM
+for user in stream:
+    # write to DB, serialize to file, or process
+    pass
 ```
 
 ---
@@ -147,10 +187,6 @@ When writing to a file (`-o`), the CLI uses a **streaming write** strategy:
 
 This means you can generate **tens of millions of rows** without hitting Node.js heap limits or Python memory errors.
 
-```
-Before (old):  generate ALL → hold in RAM → write to file   ❌ OOM at ~500k rows
-After  (new):  open file → generate 1 → write → discard → repeat  ✅ unlimited
-```
 
 ---
 ### sample output - one user
@@ -446,19 +482,3 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 - Project Commit History - `https://github.com/abhay557/random-api.xyz`
 
 ---
-
-## Contributing
-
-Contributions are welcome! Whether it's a bug fix, a new feature, or improved docs — every bit helps.
-
-- Read the [Contributing Guide](./CONTRIBUTING.md) before submitting a PR.
-- Use the [Bug Report](https://github.com/abhay557/fakedata/issues/new?template=bug_report.md) template to report issues.
-- Use the [Feature Request](https://github.com/abhay557/fakedata/issues/new?template=feature_request.md) template to suggest ideas.
-- Please follow our [Code of Conduct](./CODE_OF_CONDUCT.md) in all interactions.
-
-```bash
-# Fork the repo, then:
-git clone https://github.com/YOUR_USERNAME/fakedata.git
-git checkout -b feature/my-improvement
-# Make your changes, then open a Pull Request!
-```

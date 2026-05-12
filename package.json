@@ -1,6 +1,6 @@
 {
   "name": "@abhay557/fakedata",
-  "version": "2.0.5",
+  "version": "2.0.8",
   "description": "The fakedata package generates realistic synthetic user profiles for machine learning, deep learning, data analysis, and data science workflows.",
   "main": "src/index.js",
   "types": "src/index.d.ts",

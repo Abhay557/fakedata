@@ -1,5 +1,6 @@
 # Local development and testing
 test.js
+test_new_apis.js
 test/
 tests/
 jest.config.js
@@ -28,6 +29,7 @@ fakedata/
 fakedata_python.egg-info/
 test_python.py
 test_py.py
+test_new_apis.py
 pyproject.toml
 dist/
 __pycache__/
