@@ -89,44 +89,93 @@ EXAMPLES:
             'anomaly_rate': args.anomaly_rate,
             'missing_rate': args.missing_rate,
         }
-        # Remove None values so defaults are used inside the engine
         options = {k: v for k, v in options.items() if v is not None and v != 0.0}
 
+        count = args.count
         start = time.time()
+        PROGRESS_INTERVAL = 10000
 
-        if args.timeseries:
-            results = [
-                data.user_time_series({**options, 'days': args.days, 'events_per_day': args.events_per_day})
-                for _ in range(args.count)
-            ]
-            output = json.dumps(results, indent=2 if args.pretty else None)
-
-        elif args.format == 'csv':
-            output = data.users_to_csv(args.count, options if options else None)
-
-        elif args.format == 'flat':
-            rows = data.users_flat(args.count, options if options else None)
-            output = json.dumps(rows, indent=2 if args.pretty else None)
-
-        else:  # json
-            if args.pretty:
-                output = data.users_to_json(args.count, options if options else None)
+        # ── stdout: buffer is fine for small terminal output ──────────────
+        if not args.output:
+            if args.timeseries:
+                results = [
+                    data.user_time_series({**options, 'days': args.days, 'events_per_day': args.events_per_day})
+                    for _ in range(count)
+                ]
+                print(json.dumps(results, indent=2 if args.pretty else None))
+            elif args.format == 'csv':
+                print(data.users_to_csv(count, options if options else None))
+            elif args.format == 'flat':
+                rows = data.users_flat(count, options if options else None)
+                print(json.dumps(rows, indent=2 if args.pretty else None))
             else:
-                output = json.dumps(data.users(args.count, options if options else None))
+                if args.pretty:
+                    print(data.users_to_json(count, options if options else None))
+                else:
+                    print(json.dumps(data.users(count, options if options else None)))
+            return
+
+        # ── File: STREAMING — open file first, write one record at a time ──
+        out_path = os.path.abspath(args.output)
+
+        with open(out_path, 'w', encoding='utf-8') as f:
+
+            if args.timeseries:
+                f.write('[\n')
+                for i in range(count):
+                    rec = data.user_time_series({**options, 'days': args.days, 'events_per_day': args.events_per_day})
+                    line = json.dumps(rec, indent=2 if args.pretty else None)
+                    f.write(line + (',' if i < count - 1 else '') + '\n')
+                    if (i + 1) % PROGRESS_INTERVAL == 0:
+                        print(f"\r  ⏳ {i+1:,} / {count:,} written...", end='', file=sys.stderr)
+                f.write(']\n')
+
+            elif args.format == 'csv':
+                # Write header from first record
+                first = data.user(options if options else None)
+                header = ','.join(f'"{k}"' for k in first.keys())
+                f.write(header + '\n')
+                f.write(_user_to_csv_row(first) + '\n')
+                for i in range(1, count):
+                    u = data.user(options if options else None)
+                    f.write(_user_to_csv_row(u) + '\n')
+                    if (i + 1) % PROGRESS_INTERVAL == 0:
+                        print(f"\r  ⏳ {i+1:,} / {count:,} written...", end='', file=sys.stderr)
+
+            else:  # json / flat
+                f.write('[\n')
+                for i in range(count):
+                    u = data.user(options if options else None)
+                    line = json.dumps(u, indent=2 if args.pretty else None)
+                    f.write(line + (',' if i < count - 1 else '') + '\n')
+                    if (i + 1) % PROGRESS_INTERVAL == 0:
+                        print(f"\r  ⏳ {i+1:,} / {count:,} written...", end='', file=sys.stderr)
+                f.write(']\n')
 
         elapsed = round(time.time() - start, 2)
+        size_bytes = os.path.getsize(out_path)
+        size_label = f"{size_bytes / 1048576:.1f} MB" if size_bytes >= 1048576 else f"{size_bytes / 1024:.1f} KB"
+        print('\r', end='', file=sys.stderr)  # clear progress line
+        print(
+            f"✔ Done! Generated {count:,} users in {elapsed}s → {out_path} ({size_label})",
+            file=sys.stderr
+        )
 
-        if args.output:
-            out_path = os.path.abspath(args.output)
-            with open(out_path, 'w', encoding='utf-8') as f:
-                f.write(output)
-            size_kb = round(len(output.encode('utf-8')) / 1024, 1)
-            print(
-                f"✔ Done! Generated {args.count:,} users in {elapsed}s → {out_path} ({size_kb} KB)",
-                file=sys.stderr
-            )
+
+def _user_to_csv_row(u):
+    """Serialize a single user dict to a CSV row string."""
+    import json as _json
+    parts = []
+    for v in u.values():
+        if v is None:
+            parts.append('')
+        elif isinstance(v, (dict, list)):
+            parts.append('"' + _json.dumps(v).replace('"', '""') + '"')
+        elif isinstance(v, str):
+            parts.append('"' + v.replace('"', '""') + '"')
         else:
-            print(output)
+            parts.append(str(v))
+    return ','.join(parts)
 
 
 if __name__ == '__main__':

@@ -115,6 +115,22 @@ function cmdPreview() {
     console.log(JSON.stringify(u, null, 2));
 }
 
+// ─── Streaming CSV header from a single sample user ──────────────────────────
+function getCsvHeader() {
+    const sample = data.user();
+    return Object.keys(sample).map(k => `"${k}"`).join(',');
+}
+
+function userToCsvRow(u) {
+    return Object.values(u).map(v => {
+        if (v === null || v === undefined) return '';
+        if (typeof v === 'object') return `"${JSON.stringify(v).replace(/"/g, '""')}"`;
+        if (typeof v === 'string') return `"${v.replace(/"/g, '""')}"`;
+        return String(v);
+    }).join(',');
+}
+
+// ─── Stream one record at a time to keep RAM constant ────────────────────────
 function cmdGenerate(opts) {
     const options = {
         seed: opts.seed,
@@ -123,50 +139,127 @@ function cmdGenerate(opts) {
         missing_rate: opts.missing_rate,
     };
 
-    let output;
+    const count = opts.count;
     const startTime = Date.now();
+    const PROGRESS_INTERVAL = 10000; // report every 10k records
 
-    if (opts.timeseries) {
-        const results = Array.from({ length: opts.count }, () =>
-            data.userTimeSeries({ ...options, days: opts.days, eventsPerDay: opts.events_per_day })
-        );
-        output = opts.pretty
-            ? JSON.stringify(results, null, 2)
-            : JSON.stringify(results);
-    } else {
-        switch (opts.format) {
-            case 'csv':
-                output = data.usersToCSV(opts.count, options);
-                break;
-            case 'flat':
-                output = opts.pretty
-                    ? JSON.stringify(data.usersFlat(opts.count, options), null, 2)
-                    : JSON.stringify(data.usersFlat(opts.count, options));
-                break;
-            case 'json':
-            default:
-                output = opts.pretty
-                    ? data.usersToJSON(opts.count, options)
-                    : JSON.stringify(data.users(opts.count, options));
-                break;
+    // ── stdout path (small counts, no file) — keep original behaviour ──────
+    if (!opts.output) {
+        // For stdout we can afford to buffer (user won't pipe 50M rows to terminal)
+        let output;
+        if (opts.timeseries) {
+            const results = Array.from({ length: count }, () =>
+                data.userTimeSeries({ ...options, days: opts.days, eventsPerDay: opts.events_per_day })
+            );
+            output = opts.pretty ? JSON.stringify(results, null, 2) : JSON.stringify(results);
+        } else if (opts.format === 'csv') {
+            output = data.usersToCSV(count, options);
+        } else if (opts.format === 'flat') {
+            const rows = data.usersFlat(count, options);
+            output = opts.pretty ? JSON.stringify(rows, null, 2) : JSON.stringify(rows);
+        } else {
+            output = opts.pretty
+                ? data.usersToJSON(count, options)
+                : JSON.stringify(data.users(count, options));
         }
+        process.stdout.write(output + '\n');
+        return;
     }
 
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+    // ── File path — STREAMING: open file first, write one record at a time ──
+    const outPath = path.resolve(opts.output);
+    const stream = fs.createWriteStream(outPath, { encoding: 'utf8' });
 
-    if (opts.output) {
-        const outPath = path.resolve(opts.output);
-        fs.writeFileSync(outPath, output, 'utf-8');
-        const sizeKb = (Buffer.byteLength(output, 'utf8') / 1024).toFixed(1);
+    let written = 0;
+
+    const onDone = () => {
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+        const sizeBytes = fs.statSync(outPath).size;
+        const sizeLabel = sizeBytes >= 1048576
+            ? `${(sizeBytes / 1048576).toFixed(1)} MB`
+            : `${(sizeBytes / 1024).toFixed(1)} KB`;
+        process.stderr.write('\r\x1b[K'); // clear progress line
         console.error(
             `${c.green}${c.bright}✔ Done!${c.reset} ` +
-            `Generated ${c.cyan}${opts.count.toLocaleString()}${c.reset} users ` +
+            `Generated ${c.cyan}${count.toLocaleString()}${c.reset} users ` +
             `in ${c.yellow}${elapsed}s${c.reset} ` +
             `→ ${c.magenta}${outPath}${c.reset} ` +
-            `(${c.gray}${sizeKb} KB${c.reset})`
+            `(${c.gray}${sizeLabel}${c.reset})`
         );
+    };
+
+    stream.on('error', (err) => {
+        console.error(`${c.red}✖ Write error:${c.reset} ${err.message}`);
+        process.exit(1);
+    });
+
+    if (opts.timeseries) {
+        // ── Time-series: streaming JSON array ──────────────────────────────
+        stream.write('[\n');
+        const writeNext = () => {
+            let ok = true;
+            while (written < count && ok) {
+                const rec = data.userTimeSeries({ ...options, days: opts.days, eventsPerDay: opts.events_per_day });
+                const comma = written < count - 1 ? ',' : '';
+                const line = (opts.pretty ? JSON.stringify(rec, null, 2) : JSON.stringify(rec)) + comma + '\n';
+                ok = stream.write(line);
+                written++;
+                if (written % PROGRESS_INTERVAL === 0) {
+                    process.stderr.write(`\r${c.gray}  ⏳ ${written.toLocaleString()} / ${count.toLocaleString()} written...${c.reset}`);
+                }
+            }
+            if (written < count) {
+                stream.once('drain', writeNext);
+            } else {
+                stream.end(']\n', onDone);
+            }
+        };
+        writeNext();
+
+    } else if (opts.format === 'csv') {
+        // ── CSV: write header, then one row per user ───────────────────────
+        const header = getCsvHeader();
+        stream.write(header + '\n');
+        const writeNext = () => {
+            let ok = true;
+            while (written < count && ok) {
+                const u = data.user(options);
+                ok = stream.write(userToCsvRow(u) + '\n');
+                written++;
+                if (written % PROGRESS_INTERVAL === 0) {
+                    process.stderr.write(`\r${c.gray}  ⏳ ${written.toLocaleString()} / ${count.toLocaleString()} written...${c.reset}`);
+                }
+            }
+            if (written < count) {
+                stream.once('drain', writeNext);
+            } else {
+                stream.end(onDone);
+            }
+        };
+        writeNext();
+
     } else {
-        process.stdout.write(output + '\n');
+        // ── JSON / flat: streaming JSON array ─────────────────────────────
+        stream.write('[\n');
+        const writeNext = () => {
+            let ok = true;
+            while (written < count && ok) {
+                const u = opts.format === 'flat' ? data.user(options) : data.user(options);
+                const comma = written < count - 1 ? ',' : '';
+                const line = (opts.pretty ? JSON.stringify(u, null, 2) : JSON.stringify(u)) + comma + '\n';
+                ok = stream.write(line);
+                written++;
+                if (written % PROGRESS_INTERVAL === 0) {
+                    process.stderr.write(`\r${c.gray}  ⏳ ${written.toLocaleString()} / ${count.toLocaleString()} written...${c.reset}`);
+                }
+            }
+            if (written < count) {
+                stream.once('drain', writeNext);
+            } else {
+                stream.end(']\n', onDone);
+            }
+        };
+        writeNext();
     }
 }
 

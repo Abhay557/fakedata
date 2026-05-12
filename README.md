@@ -22,6 +22,7 @@ A high-performance, **zero-dependency** synthetic data generation engine, availa
 - **Time-Series Data**: Generate chronological activity logs (logins, page views, purchases) per user for behavioral modeling.
 - **Pipeline Ready**: Export directly to CSV, JSON, or Flat objects (perfect for `pandas.DataFrame`).
 - **CLI Tool**: Generate and export datasets directly from your terminal — no scripting required.
+- **Streaming Generation**: Files are written one record at a time — constant RAM usage regardless of dataset size. Generate 10M+ rows without running out of memory.
 
 ---
 
@@ -124,11 +125,31 @@ fakedata generate -n 500 -l in --seed 42 -o india.json
 # Fraud detection dataset with 5% anomalies
 fakedata generate -n 10000 -a 0.05 -f csv -o fraud_data.csv
 
+# Generate 1 million rows without running out of memory (streaming)
+fakedata generate -n 1000000 -f csv -o big_dataset.csv
+
 # Preview a single user in the console
 fakedata preview
 
 # Time-series activity logs for 100 users
 fakedata generate -n 100 --timeseries --days 60 -o activity.json
+```
+
+### Streaming Architecture
+
+When writing to a file (`-o`), the CLI uses a **streaming write** strategy:
+
+- The output file is **created first**, before any data is generated.
+- Each user is generated **one at a time** and written immediately to disk.
+- The generated object is then **discarded** — it is never held in a large array.
+- **RAM usage stays constant** (O(1)) regardless of how many records you generate.
+- A live progress counter is printed every 10,000 records for large jobs.
+
+This means you can generate **tens of millions of rows** without hitting Node.js heap limits or Python memory errors.
+
+```
+Before (old):  generate ALL → hold in RAM → write to file   ❌ OOM at ~500k rows
+After  (new):  open file → generate 1 → write → discard → repeat  ✅ unlimited
 ```
 
 ---
