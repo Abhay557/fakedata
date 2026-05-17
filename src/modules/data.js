@@ -27,6 +27,11 @@ const countriesData = loadData('countries.json');
 // Phase 2 datasets
 const healthcareData = loadData('healthcare.json');
 
+// Phase 3 datasets (v2.1 enrichments)
+const healthcareExtData = loadData('healthcare_extended.json');
+const jobSkillsData = loadData('job_skills.json');
+const salaryDistData = loadData('salary_distributions.json');
+
 // Phase 4 datasets
 const localesData = loadData('locales.json');
 
@@ -193,6 +198,8 @@ const generateEducation = (age, persona) => {
         field,
         institution: university.name,
         institutionCountry: university.country,
+        institutionDomain: university.domain || null,
+        institutionState: university.state || null,
         gpa,
         graduationYear: gradYear,
         studentDebt
@@ -243,10 +250,12 @@ const generateEmployment = (age, education, persona) => {
         return {
             status: employmentStatus,
             company: null,
+            companyDetails: null,
             companySize: null,
             industry: null,
             jobTitle: null,
             jobCategory: null,
+            skills: [],
             yearsExperience: employmentStatus === "retired" ? Math.floor(rng() * 30) + 10 : 0,
             workMode: null,
             workHoursPerWeek: 0,
@@ -274,13 +283,46 @@ const generateEmployment = (age, education, persona) => {
     // Job satisfaction (1-10, normally distributed around 6.5)
     const satisfaction = Math.round(clamp(normalRandom(6.5, 1.8), 1, 10));
 
+    // Pick skills correlated with job category
+    const categoryName = jobCategory.name;
+    let skills = [];
+    if (jobSkillsData.categorySkills) {
+        // Try to find matching category in parsed Google job data
+        const catKeys = Object.keys(jobSkillsData.categorySkills);
+        const matchedCat = catKeys.find(k => k.toLowerCase().includes(categoryName.toLowerCase())
+            || categoryName.toLowerCase().includes(k.toLowerCase().split(' ')[0]));
+        if (matchedCat && jobSkillsData.categorySkills[matchedCat].length > 0) {
+            const pool = jobSkillsData.categorySkills[matchedCat];
+            const numSkills = Math.min(pool.length, Math.floor(rng() * 4) + 3);
+            const shuffled = [...pool].sort(() => rng() - 0.5);
+            skills = shuffled.slice(0, numSkills);
+        }
+    }
+    // Fallback: pick from domain skills
+    if (skills.length === 0) {
+        const domainKeys = Object.keys(jobSkillsData.domainSkills || {});
+        const fallbackDomain = getRandom(domainKeys);
+        const pool = (jobSkillsData.domainSkills || {})[fallbackDomain] || ['Communication', 'Problem Solving', 'Teamwork'];
+        const numSkills = Math.floor(rng() * 3) + 3;
+        const shuffled = [...pool].sort(() => rng() - 0.5);
+        skills = shuffled.slice(0, numSkills);
+    }
+
     return {
         status: employmentStatus,
         company: company.name,
+        companyDetails: {
+            country: company.country,
+            industry: company.industry,
+            yearFounded: company.yearFounded || company.founded || null,
+            revenue: company.revenue || null,
+            netIncome: company.netIncome || null,
+        },
         companySize: companySize.size,
         industry: company.industry,
         jobTitle: jobTitle.title,
         jobCategory: jobCategory.name,
+        skills,
         yearsExperience,
         workMode: workMode.mode,
         workHoursPerWeek: workHours,
@@ -550,6 +592,64 @@ const generateHealth = (age, heightCm, weightKg) => {
     const vaccinationWeights = [65, 25, 10];
     const vaccination = vaccinationStatuses[weightedRandom(vaccinationWeights)];
 
+    // Medical history using healthcare_extended data
+    const numVisits = medicalCondition !== "None"
+        ? Math.floor(rng() * 3) + 1
+        : (age > 50 ? (rng() < 0.4 ? 1 : 0) : (rng() < 0.15 ? 1 : 0));
+    const medicalHistory = [];
+    for (let v = 0; v < numVisits; v++) {
+        const admTypes = ['Urgent', 'Emergency', 'Elective'];
+        const admWeights = healthcareExtData.admissionWeights
+            ? [healthcareExtData.admissionWeights.Urgent || 33, healthcareExtData.admissionWeights.Emergency || 33, healthcareExtData.admissionWeights.Elective || 34]
+            : [33, 33, 34];
+        const admissionType = admTypes[weightedRandom(admWeights)];
+
+        // Billing amount from real distributions
+        const billingDist = (healthcareExtData.billingDistributions || {})[admissionType] || { min: 500, max: 50000, median: 25000 };
+        const billingAmount = parseFloat(clamp(normalRandom(billingDist.median, (billingDist.p75 - billingDist.p25) / 2), billingDist.min, billingDist.max).toFixed(2));
+
+        // Test result
+        const testResults = ['Normal', 'Abnormal', 'Inconclusive'];
+        const testWeights = healthcareExtData.testResultWeights
+            ? [healthcareExtData.testResultWeights.Normal || 33, healthcareExtData.testResultWeights.Abnormal || 33, healthcareExtData.testResultWeights.Inconclusive || 34]
+            : [40, 30, 30];
+        const testResult = testResults[weightedRandom(testWeights)];
+
+        // Hospital and doctor from real data
+        const hospital = healthcareExtData.hospitals ? getRandom(healthcareExtData.hospitals) : 'General Hospital';
+        const doctor = healthcareExtData.doctors ? getRandom(healthcareExtData.doctors) : 'Dr. Smith';
+
+        // Condition-specific medication
+        let visitMedication;
+        const condMeds = (healthcareExtData.conditionMedications || {})[medicalCondition];
+        if (condMeds && condMeds.length > 0) {
+            const medWeights = condMeds.map(m => m.weight);
+            visitMedication = condMeds[weightedRandom(medWeights)].medication;
+        } else {
+            visitMedication = getRandom(healthcareData.medications);
+        }
+
+        // Dates: random visit within last 5 years
+        const daysAgo = Math.floor(rng() * 1825) + 1;
+        const admissionDate = new Date(Date.now() - daysAgo * 86400000);
+        const stayDays = admissionType === 'Emergency' ? Math.floor(rng() * 14) + 1
+            : admissionType === 'Urgent' ? Math.floor(rng() * 7) + 1
+            : Math.floor(rng() * 3) + 1;
+        const dischargeDate = new Date(admissionDate.getTime() + stayDays * 86400000);
+
+        medicalHistory.push({
+            condition: v === 0 ? medicalCondition : (rng() < 0.5 ? medicalCondition : getRandom(healthcareData.conditions.filter(c => c.name !== 'None')).name),
+            hospital,
+            doctor,
+            admissionType,
+            billingAmount,
+            medication: visitMedication,
+            testResult,
+            admissionDate: admissionDate.toISOString().split('T')[0],
+            dischargeDate: dischargeDate.toISOString().split('T')[0],
+        });
+    }
+
     return {
         bmi,
         bmiCategory,
@@ -566,6 +666,7 @@ const generateHealth = (age, heightCm, weightKg) => {
         medicalCondition,
         insuranceProvider,
         medications,
+        medicalHistory,
         lastCheckupMonthsAgo: lastCheckupMonths,
         hasDisability,
         mentalHealth,
@@ -1510,6 +1611,223 @@ const generateStream = (count = 1000, options = {}) => {
     return readable;
 };
 
+// ─── Standalone Generators (v2.1) ───────────────────────────────────────────
+
+/**
+ * Generate a standalone company profile.
+ * @returns {object} Company with name, country, industry, revenue, etc.
+ */
+const company = () => {
+    const c = getRandom(companiesData);
+    const size = COMPANY_SIZES[weightedRandom(COMPANY_SIZES.map(s => s.weight))];
+    const rating = parseFloat((rng() * 2 + 3).toFixed(1)); // 3.0 - 5.0
+    return {
+        name: c.name,
+        country: c.country,
+        industry: c.industry,
+        yearFounded: c.yearFounded || c.founded || null,
+        revenue: c.revenue || null,
+        netIncome: c.netIncome || null,
+        size: size.size,
+        employeeRange: size.employeeRange,
+        rating,
+    };
+};
+
+/**
+ * Generate multiple company profiles.
+ * @param {number} count
+ * @returns {object[]}
+ */
+const companies = (count = 10) => Array.from({ length: count }, () => company());
+
+/**
+ * Generate a standalone job listing.
+ * @returns {object} Job with title, company, skills, salary, etc.
+ */
+const job = () => {
+    const c = getRandom(companiesData);
+    const title = getRandom(jobTitlesData);
+    const cat = getRandom(jobCategoriesData);
+    const workMode = WORK_MODES[weightedRandom(WORK_MODES.map(w => w.weight))];
+
+    // Skills from job_skills data
+    let skills = [];
+    const catKeys = Object.keys(jobSkillsData.categorySkills || {});
+    const matchedCat = catKeys.find(k => k.toLowerCase().includes(cat.name.toLowerCase().split(' ')[0]));
+    if (matchedCat) {
+        const pool = jobSkillsData.categorySkills[matchedCat];
+        skills = [...pool].sort(() => rng() - 0.5).slice(0, Math.floor(rng() * 4) + 3);
+    } else {
+        const pool = (jobSkillsData.domainSkills || {}).general || ['Communication', 'Teamwork'];
+        skills = [...pool].sort(() => rng() - 0.5).slice(0, 4);
+    }
+
+    // Salary range
+    const roleKeys = Object.keys(salaryDistData);
+    const role = getRandom(roleKeys);
+    const dist = salaryDistData[role];
+    const salaryMin = dist ? Math.round(dist.p25 / 80) : 30000; // INR to USD rough
+    const salaryMax = dist ? Math.round(dist.p75 / 80) : 120000;
+
+    return {
+        title: title.title,
+        company: c.name,
+        companyCountry: c.country,
+        industry: c.industry,
+        category: cat.name,
+        location: `${getRandom(stateData.data).city}, ${c.country}`,
+        workMode: workMode.mode,
+        skills,
+        salaryRange: { min: salaryMin, max: salaryMax, currency: 'USD' },
+        postedDaysAgo: Math.floor(rng() * 30) + 1,
+    };
+};
+
+/**
+ * Generate multiple job listings.
+ * @param {number} count
+ * @returns {object[]}
+ */
+const jobs = (count = 10) => Array.from({ length: count }, () => job());
+
+/**
+ * Generate a standalone medical record.
+ * @returns {object} Record with patient, hospital, billing, etc.
+ */
+const medicalRecord = () => {
+    const fn = getRandom(firstNames.names);
+    const ln = getRandom(lastNames.surnames);
+    const age = generateAge();
+    const gender = getRandom(['Male', 'Female']);
+
+    const conditions = healthcareData.conditions.filter(c => c.name !== 'None');
+    const condition = conditions[weightedRandom(conditions.map(c => c.weight))];
+
+    const admTypes = ['Urgent', 'Emergency', 'Elective'];
+    const admWeights = [33, 33, 34];
+    const admissionType = admTypes[weightedRandom(admWeights)];
+
+    const hospital = healthcareExtData.hospitals ? getRandom(healthcareExtData.hospitals) : 'General Hospital';
+    const doctor = healthcareExtData.doctors ? getRandom(healthcareExtData.doctors) : 'Dr. Smith';
+
+    const billingDist = (healthcareExtData.billingDistributions || {})[admissionType] || { min: 500, max: 50000, median: 25000, p25: 13000, p75: 38000 };
+    const billingAmount = parseFloat(clamp(normalRandom(billingDist.median, (billingDist.p75 - billingDist.p25) / 2), billingDist.min, billingDist.max).toFixed(2));
+
+    const condMeds = (healthcareExtData.conditionMedications || {})[condition.name];
+    let medication;
+    if (condMeds && condMeds.length > 0) {
+        const medWeights = condMeds.map(m => m.weight);
+        medication = condMeds[weightedRandom(medWeights)].medication;
+    } else {
+        medication = getRandom(healthcareData.medications);
+    }
+
+    const testResults = ['Normal', 'Abnormal', 'Inconclusive'];
+    const testResult = testResults[weightedRandom([40, 30, 30])];
+
+    const daysAgo = Math.floor(rng() * 1825) + 1;
+    const admissionDate = new Date(Date.now() - daysAgo * 86400000);
+    const stayDays = admissionType === 'Emergency' ? Math.floor(rng() * 14) + 1 : Math.floor(rng() * 5) + 1;
+    const dischargeDate = new Date(admissionDate.getTime() + stayDays * 86400000);
+
+    return {
+        patient: { name: `${fn} ${ln}`, age, gender },
+        hospital,
+        doctor,
+        condition: condition.name,
+        admissionType,
+        billingAmount,
+        medication,
+        testResult,
+        insuranceProvider: getRandom(healthcareData.insuranceProviders),
+        admissionDate: admissionDate.toISOString().split('T')[0],
+        dischargeDate: dischargeDate.toISOString().split('T')[0],
+        roomNumber: Math.floor(rng() * 500) + 100,
+    };
+};
+
+/**
+ * Generate multiple medical records.
+ * @param {number} count
+ * @returns {object[]}
+ */
+const medicalRecords = (count = 10) => Array.from({ length: count }, () => medicalRecord());
+
+/**
+ * Generate a standalone university.
+ * @returns {object} University with name, country, domain, etc.
+ */
+const university = () => {
+    const u = getRandom(universitiesData);
+    return {
+        name: u.name,
+        country: u.country,
+        countryCode: u.code,
+        domain: u.domain || null,
+        stateProvince: u.state || null,
+    };
+};
+
+/**
+ * Generate multiple universities.
+ * @param {number} count
+ * @returns {object[]}
+ */
+const universities = (count = 10) => Array.from({ length: count }, () => university());
+
+/**
+ * Generate a standalone financial transaction.
+ * @returns {object} Transaction with amount, merchant, category, etc.
+ */
+const transaction = () => {
+    const merchants = ['Amazon', 'Walmart', 'Target', 'Costco', 'Starbucks', 'McDonalds', 'Uber', 'Netflix', 'Spotify', 'Apple', 'Google', 'Shell', 'BP', 'CVS', 'Walgreens', 'Home Depot', 'Best Buy', 'Nike', 'Zara', 'IKEA'];
+    const categories = ['groceries', 'dining', 'transportation', 'entertainment', 'utilities', 'shopping', 'healthcare', 'education', 'travel', 'subscription'];
+    const types = ['debit', 'credit', 'transfer', 'refund'];
+    const typeWeights = [45, 35, 12, 8];
+    const statuses = ['completed', 'pending', 'failed', 'reversed'];
+    const statusWeights = [85, 8, 4, 3];
+    const currencies = ['USD', 'EUR', 'GBP', 'INR', 'JPY', 'CAD', 'AUD'];
+    const currencyWeights = [40, 15, 10, 15, 8, 6, 6];
+
+    const type = types[weightedRandom(typeWeights)];
+    const category = getRandom(categories);
+
+    // Amount varies by category
+    const amountRanges = {
+        groceries: [5, 200], dining: [8, 120], transportation: [2, 80],
+        entertainment: [5, 100], utilities: [30, 300], shopping: [10, 500],
+        healthcare: [15, 2000], education: [50, 5000], travel: [100, 3000],
+        subscription: [5, 50]
+    };
+    const range = amountRanges[category] || [5, 200];
+    const amount = parseFloat((rng() * (range[1] - range[0]) + range[0]).toFixed(2));
+
+    // Timestamp: random within last 90 days
+    const daysAgo = Math.floor(rng() * 90);
+    const hoursAgo = Math.floor(rng() * 24);
+    const timestamp = new Date(Date.now() - (daysAgo * 86400000) - (hoursAgo * 3600000));
+
+    return {
+        id: `txn_${Math.floor(rng() * 1e12).toString(36)}`,
+        amount,
+        currency: currencies[weightedRandom(currencyWeights)],
+        type,
+        merchant: getRandom(merchants),
+        category,
+        timestamp: timestamp.toISOString(),
+        status: statuses[weightedRandom(statusWeights)],
+        cardType: getRandom(cardData.cards),
+    };
+};
+
+/**
+ * Generate multiple financial transactions.
+ * @param {number} count
+ * @returns {object[]}
+ */
+const transactions = (count = 10) => Array.from({ length: count }, () => transaction());
+
 module.exports = {
     user,
     users,
@@ -1529,5 +1847,16 @@ module.exports = {
     creditcard,
     address,
     resume,
-    biodata
+    biodata,
+    // v2.1 standalone generators
+    company,
+    companies,
+    job,
+    jobs,
+    medicalRecord,
+    medicalRecords,
+    university,
+    universities,
+    transaction,
+    transactions,
 };

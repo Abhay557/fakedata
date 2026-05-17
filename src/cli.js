@@ -26,7 +26,7 @@ ${c.cyan}${c.bright}
   ██╔══╝  ██╔══██║██╔═██╗ ██╔══╝  ██║  ██║██╔══██║   ██║   ██╔══██║
   ██║     ██║  ██║██║  ██╗███████╗██████╔╝██║  ██║   ██║   ██║  ██║
   ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
-${c.reset}  ${c.gray}Fake Data Generator | v2.0.2${c.reset}
+${c.reset}  ${c.gray}Fake Data Generator | v2.1.0${c.reset}
 `;
 
 const HELP = `
@@ -40,7 +40,8 @@ ${c.bright}COMMANDS:${c.reset}
   ${c.cyan}help${c.reset}         Show this help message
 
 ${c.bright}OPTIONS (for generate):${c.reset}
-  ${c.yellow}--count, -n${c.reset}         Number of users to generate         ${c.gray}[default: 10]${c.reset}
+  ${c.yellow}--type, -T${c.reset}            Type: users|companies|jobs|...       ${c.gray}[default: users]${c.reset}
+  ${c.yellow}--count, -n${c.reset}         Number of records to generate       ${c.gray}[default: 10]${c.reset}
   ${c.yellow}--format, -f${c.reset}        Output format: json | csv | flat     ${c.gray}[default: json]${c.reset}
   ${c.yellow}--output, -o${c.reset}        Output file path                     ${c.gray}[default: stdout]${c.reset}
   ${c.yellow}--seed, -s${c.reset}          Random seed for reproducibility      ${c.gray}[default: none]${c.reset}
@@ -61,6 +62,9 @@ ${c.bright}EXAMPLES:${c.reset}
   ${c.gray}# Generate fraud detection dataset with 5% anomalies${c.reset}
   fakedata generate -n 10000 -a 0.05 -f csv -o fraud_data.csv
 
+  ${c.gray}# Generate 500 standalone company profiles${c.reset}
+  fakedata generate --type companies -n 500 -o companies.json
+
   ${c.gray}# Preview a single user profile in the console${c.reset}
   fakedata preview
 
@@ -73,6 +77,7 @@ function parseArgs(argv) {
     const args = argv.slice(2);
     const opts = {
         command: args[0] || 'help',
+        type: 'users',
         count: 10,
         format: 'json',
         output: null,
@@ -90,6 +95,7 @@ function parseArgs(argv) {
         const arg = args[i];
         const next = args[i + 1];
         switch (arg) {
+            case '--type': case '-T': opts.type = next; i++; break;
             case '--count': case '-n': opts.count = parseInt(next); i++; break;
             case '--format': case '-f': opts.format = next; i++; break;
             case '--output': case '-o': opts.output = next; i++; break;
@@ -152,6 +158,19 @@ function cmdGenerate(opts) {
                 data.userTimeSeries({ ...options, days: opts.days, eventsPerDay: opts.events_per_day })
             );
             output = opts.pretty ? JSON.stringify(results, null, 2) : JSON.stringify(results);
+        } else if (opts.type !== 'users') {
+            const getGenerator = (type) => {
+                switch(type) {
+                    case 'companies': return data.companies;
+                    case 'jobs': return data.jobs;
+                    case 'universities': return data.universities;
+                    case 'transactions': return data.transactions;
+                    case 'medical_records': return data.medicalRecords;
+                    default: return data.users;
+                }
+            };
+            const rows = getGenerator(opts.type)(count, options);
+            output = opts.pretty ? JSON.stringify(rows, null, 2) : JSON.stringify(rows);
         } else if (opts.format === 'csv') {
             output = data.usersToCSV(count, options);
         } else if (opts.format === 'flat') {
@@ -181,7 +200,7 @@ function cmdGenerate(opts) {
         process.stderr.write('\r\x1b[K'); // clear progress line
         console.error(
             `${c.green}${c.bright}✔ Done!${c.reset} ` +
-            `Generated ${c.cyan}${count.toLocaleString()}${c.reset} users ` +
+            `Generated ${c.cyan}${count.toLocaleString()}${c.reset} records ` +
             `in ${c.yellow}${elapsed}s${c.reset} ` +
             `→ ${c.magenta}${outPath}${c.reset} ` +
             `(${c.gray}${sizeLabel}${c.reset})`
@@ -244,9 +263,16 @@ function cmdGenerate(opts) {
         const writeNext = () => {
             let ok = true;
             while (written < count && ok) {
-                const u = opts.format === 'flat' ? data.user(options) : data.user(options);
+                let rec;
+                if (opts.type === 'companies') rec = data.company();
+                else if (opts.type === 'jobs') rec = data.job();
+                else if (opts.type === 'universities') rec = data.university();
+                else if (opts.type === 'transactions') rec = data.transaction();
+                else if (opts.type === 'medical_records') rec = data.medicalRecord();
+                else rec = opts.format === 'flat' ? data.user(options) : data.user(options);
+
                 const comma = written < count - 1 ? ',' : '';
-                const line = (opts.pretty ? JSON.stringify(u, null, 2) : JSON.stringify(u)) + comma + '\n';
+                const line = (opts.pretty ? JSON.stringify(rec, null, 2) : JSON.stringify(rec)) + comma + '\n';
                 ok = stream.write(line);
                 written++;
                 if (written % PROGRESS_INTERVAL === 0) {

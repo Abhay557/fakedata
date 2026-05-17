@@ -1,6 +1,7 @@
 # Exclude development and Node.js files
 prune .github
 exclude CONTRIBUTING.md
+exclude data.md
 exclude CODE_OF_CONDUCT.md
 exclude .npmignore
 exclude test.js

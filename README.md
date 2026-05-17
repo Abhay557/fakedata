@@ -8,6 +8,7 @@
 
 A high-performance, **zero-dependency** synthetic data generation engine, available for both **Node.js** and **Python**. Designed specifically for machine learning, data science, and analytics workflows, providing 100% data parity across platforms.
 
+
 ## Overview
 
 `fakedata` has been completely rebuilt from the ground up to serve as an **ML-ready synthetic data engine**. It generates deeply interconnected user profiles with **112 flat columns across 13 domains** (Health, Financial, Employment, Digital Footprint, etc.), making it the perfect tool for training models, benchmarking pipelines, or simulating realistic databases.
@@ -23,6 +24,8 @@ A high-performance, **zero-dependency** synthetic data generation engine, availa
 - **Pipeline Ready**: Export directly to CSV, JSON, or Flat objects (perfect for `pandas.DataFrame`).
 - **CLI Tool**: Generate and export datasets directly from your terminal — no scripting required.
 - **Streaming Generation**: Files are written one record at a time — constant RAM usage regardless of dataset size. Generate 10M+ rows without running out of memory.
+- **Standalone Generators**: Generate modular, domain-specific data without full user profiles using `data.company()`, `data.job()`, `data.medicalRecord()`, `data.university()`, and `data.transaction()`.
+- **Enriched High-Fidelity Data**: Powered by aggregated datasets, user profiles now include structured `health.medicalHistory` arrays, `employment.companyDetails` with revenue and net income, and `employment.skills` arrays correlated to real job titles.
 
 ---
 
@@ -142,7 +145,8 @@ pip install fakedata-python
 
 | Flag | Default | Description |
 |:---|:---|:---|
-| `-n`, `--count` | `10` | Number of users to generate |
+| `-T`, `--type` | `users` | Type of data: `users` \| `companies` \| `jobs` \| `universities` \| `transactions` \| `medical_records` |
+| `-n`, `--count` | `10` | Number of records to generate |
 | `-f`, `--format` | `json` | Output format: `json` \| `csv` \| `flat` |
 | `-o`, `--output` | stdout | Output file path |
 | `-s`, `--seed` | none | Random seed for reproducibility |
@@ -158,6 +162,12 @@ pip install fakedata-python
 ```bash
 # Generate 1000 users and save as CSV
 fakedata generate -n 1000 -f csv -o dataset.csv
+
+# Generate 500 standalone company profiles (v2.1)
+fakedata generate --type companies -n 500 -o companies.json
+
+# Generate 100,000 medical records directly to a file (v2.1)
+fakedata generate -T medical_records -n 100000 -o hospitals.json
 
 # Generate 500 deterministic Indian users
 fakedata generate -n 500 -l in --seed 42 -o india.json
@@ -187,188 +197,6 @@ When writing to a file (`-o`), the CLI uses a **streaming write** strategy:
 
 This means you can generate **tens of millions of rows** without hitting Node.js heap limits or Python memory errors.
 
-
----
-### sample output - one user
-```fakedata.data.user()``` 
-```fakedata.data.user(n) // set n = 100```
-
-```json
-  "id": "4612",
-  "fullName": "Damaris Carlo Ebervale",
-  "firstName": "Damaris",
-  "lastName": "Ebervale",
-  "middleName": "Carlo",
-  "age": 31,
-  "gender": "non-binary",
-  "email": "damaris.ebervale@liberomail.com",
-  "phone": "+1 7469125114",
-  "username": "damaris_4612",
-  "password": "UQ!VZr0cLUD9",
-  "birthDate": "1995-07-19",
-  "bloodGroup": "+B",
-  "height": 185,
-  "weight": 60,
-  "domain": "damarisebervale.vg",
-  "ip": "48.50.80.113",
-  "macaddress": "33:2F:39:EE:3B:1E",
-  "address": {
-    "street": "3623 Chateau Lane",
-    "city": "Kilgore",
-    "state": "Texas",
-    "country": "Sierra Leone",
-    "countryCode": "SL",
-    "zipCode": 36434,
-    "coordinates": {
-      "latitude": "-68.324385",
-      "longitude": "55.859967"
-    }
-  },
-  "demographics": {
-    "ethnicity": "Hispanic",
-    "nationality": "South Korean",
-    "language": {
-      "primary": "Arabic",
-      "secondary": "Turkish"
-    },
-    "relationshipStatus": "dating"
-  },
-  "education": {
-    "level": "Bachelor's",
-    "field": "Computer Science",
-    "institution": "Agricultural University of Lublin",
-    "institutionCountry": "Poland",
-    "gpa": 2.79,
-    "graduationYear": 2017,
-    "studentDebt": 64117
-  },
-  "employment": {
-    "status": "self-employed",
-    "company": "China CITIC Bank",
-    "companySize": "enterprise",
-    "industry": "Banking",
-    "jobTitle": "\"ORACLE DBA\"",
-    "jobCategory": "Network Engineering",
-    "yearsExperience": 10,
-    "workMode": "onsite",
-    "workHoursPerWeek": 36,
-    "jobSatisfaction": 6
-  },
-  "financial": {
-    "annualIncome": 21600,
-    "creditScore": 464,
-    "savings": 1680,
-    "monthlyExpenses": 1309,
-    "debtToIncome": 3.12,
-    "taxBracket": "12%",
-    "investmentStyle": "moderate",
-    "homeOwnership": "own"
-  },
-  "health": {
-    "bmi": 17.5,
-    "bmiCategory": "underweight",
-    "bloodPressure": {
-      "systolic": 100,
-      "diastolic": 82
-    },
-    "exerciseFrequency": "3-4 times/week",
-    "smoking": "never",
-    "alcohol": "never",
-    "sleepHoursPerNight": 8.3,
-    "sleepQuality": "poor",
-    "diet": "mediterranean",
-    "medicalCondition": "None",
-    "insuranceProvider": "UnitedHealthcare",
-    "medications": [
-      "Lisinopril"
-    ],
-    "lastCheckupMonthsAgo": 11,
-    "hasDisability": false,
-    "mentalHealth": "poor",
-    "vaccination": "partially vaccinated"
-  },
-  "social": {
-    "socialMedia": {
-      "platforms": [
-        "Pinterest",
-        "Twitter/X",
-        "Reddit",
-        "Instagram"
-      ],
-      "screenTimeHoursPerDay": 3.8,
-      "preferredContent": "video"
-    },
-    "shopping": {
-      "frequency": "weekly",
-      "preferredCategories": [
-        "toys & games",
-        "books"
-      ],
-      "monthlyOnlineSpending": 175
-    },
-    "newsSource": "social media",
-    "travelFrequency": "weekly",
-    "volunteers": false,
-    "pet": "multiple"
-  },
-  "digitalFootprint": {
-    "accountCreatedAt": "2021-04-01T09:59:41.867116+00:00",
-    "lastLoginAt": "2026-04-24T09:59:41.867116+00:00",
-    "lastPasswordChangeAt": "2025-11-06T09:59:41.867116+00:00",
-    "userAgent": "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/121.0.0.0 Mobile Safari/537.36",
-    "browser": "Chrome",
-    "os": "Windows 11",
-    "referrer": "facebook.com",
-    "avgSessionMinutes": 17.6,
-    "sessionsPerWeek": 10,
-    "totalSessions": 2666,
-    "twoFactorEnabled": false,
-    "preferredLanguage": "de",
-    "accountStatus": "inactive",
-    "verifiedEmail": false,
-    "verifiedPhone": true
-  },
-  "bank": {
-    "nameOnCard": "Damaris Carlo Ebervale",
-    "cardNumber": "2289970210128357",
-    "cardType": "Mastercard",
-    "cardExpiry": "5/29",
-    "cardCvv": "355"
-  },
-  "hobbies": [
-    "Knitting",
-    "Gardening",
-    "LARPing"
-  ],
-  "technology_profile": {
-    "devices": {
-      "additional_devices": [
-        "BlackBerry Bold 9790",
-        "Nokia N9"
-      ],
-      "smartphone": "Sony Ericsson Xperia X10"
-    },
-    "phone_preferences": {
-      "critical_features": [
-        "security features",
-        "reliability",
-        "5G connectivity"
-      ],
-      "primary_uses": [
-        "photography",
-        "education",
-        "organization"
-      ]
-    },
-    "interest": [
-      "Knitting",
-      "Gardening",
-      "LARPing"
-    ]
-  }
-}
-
-```
 ---
 
 ## Advanced Features Reference
@@ -428,7 +256,45 @@ These personas ensure that an analyst looking at your synthetic data will find *
 
 ## Data Structure Highlights (112 Columns)
 
-### 3. Locale-Aware Name Generation
+### 3. v2.1 High-Fidelity Data Injections
+Version 2.1 completely revamps the `user()` profile by injecting rich, deeply nested real-world data distributions for Employment, Health, and Education.
+
+```json
+{
+  "employment": {
+    "status": "employed",
+    "jobTitle": "Data Scientist",
+    "jobCategory": "Engineering",
+    "skills": ["Python", "SQL", "Machine Learning", "PyTorch"],
+    "companyDetails": {
+      "country": "United States",
+      "industry": "Technology",
+      "yearFounded": 1998,
+      "revenue": 182300000000,
+      "netIncome": 46200000000
+    }
+  },
+  "health": {
+    "medicalHistory": [
+      {
+        "condition": "Hypertension",
+        "hospital": "UCLA Medical Center",
+        "admissionType": "Urgent",
+        "billingAmount": 18560.50,
+        "medication": "Lisinopril",
+        "testResult": "Abnormal"
+      }
+    ]
+  },
+  "education": {
+    "institution": "Massachusetts Institute of Technology",
+    "institutionDomain": "mit.edu",
+    "institutionState": "Massachusetts"
+  }
+}
+```
+
+### 4. Locale-Aware Name Generation
 Supports 8 locales with culturally accurate first names, last names, and country/phone codes:
 - `'in'`: Aarav Sharma, Priya Patel (+91, India)
 - `'jp'`: Haruto Tanaka, Sakura Sato (+81, Japan)
@@ -439,7 +305,7 @@ Supports 8 locales with culturally accurate first names, last names, and country
 - `'fr'`: Gabriel Martin, Emma Dubois (+33, France)
 - `'en'`: James Smith, Mary Johnson (+1, United States)
 
-### 4. Time-Series Activity Data
+### 5. Time-Series Activity Data
 Generate chronological behavioral logs for users. Event types include `login`, `page_view`, `purchase`, `search`, `click`, `logout`, `api_call`, `upload`, `download`, and `comment`.
 
 ```javascript
@@ -448,7 +314,7 @@ const ts = data.userTimeSeries({ seed: 42, days: 30, eventsPerDay: 8 });
 // ts.activity → [{ timestamp, type, page, duration, device, ip, success, amount?, query? }]
 ```
 
-### 5. Anomaly Injection Engine (Fraud Detection)
+### 6. Anomaly Injection Engine (Fraud Detection)
 When `anomaly_rate` is > 0, `fakedata` injects ML-detectable fraud patterns into the dataset. Affected users receive a special `_anomaly` flag object indicating the fraud type.
 
 | Anomaly Type | Effect |
@@ -462,7 +328,7 @@ When `anomaly_rate` is > 0, `fakedata` injects ML-detectable fraud patterns into
 | `data_mismatch` | Age=12 + employed + 30yr experience + $500k income |
 | `health_outlier` | BMI = 8-9 or 75-80, BP = extreme values |
 
-### 6. The User Profile Schema (109 Correlated Fields)
+### 7. The User Profile Schema (109 Correlated Fields)
 Each generated user contains highly realistic, correlated data. For example, age determines education graduation year, which impacts employment salary, which impacts credit score, which impacts housing status and health/BMI metrics.
 
 ```text

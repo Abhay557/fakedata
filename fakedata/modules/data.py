@@ -30,6 +30,11 @@ countries_data = load_data('countries.json')
 # Phase 2 datasets
 healthcare_data = load_data('healthcare.json')
 
+# Phase 3 datasets (v2.1 enrichments)
+healthcare_ext_data = load_data('healthcare_extended.json')
+job_skills_data = load_data('job_skills.json')
+salary_dist_data = load_data('salary_distributions.json')
+
 # Phase 4 datasets
 locales_data = load_data('locales.json')
 
@@ -162,6 +167,8 @@ def generate_education(age, persona):
         "field": field,
         "institution": university["name"],
         "institutionCountry": university["country"],
+        "institutionDomain": university.get("domain"),
+        "institutionState": university.get("state"),
         "gpa": gpa,
         "graduationYear": grad_year,
         "studentDebt": student_debt
@@ -218,10 +225,12 @@ def generate_employment(age, education, persona):
         return {
             "status": employment_status,
             "company": None,
+            "companyDetails": None,
             "companySize": None,
             "industry": None,
             "jobTitle": None,
             "jobCategory": None,
+            "skills": [],
             "yearsExperience": random.randint(10, 40) if employment_status == "retired" else 0,
             "workMode": None,
             "workHoursPerWeek": 0,
@@ -251,13 +260,46 @@ def generate_employment(age, education, persona):
     # Job satisfaction (1-10, normally distributed around 6.5)
     satisfaction = round(clamp(normal_random(6.5, 1.8), 1, 10))
 
+    # Pick skills correlated with job category
+    category_name = job_category["name"]
+    skills = []
+    category_skills = job_skills_data.get("categorySkills", {})
+    if category_skills:
+        cat_keys = list(category_skills.keys())
+        matched_cat = None
+        for k in cat_keys:
+            if k.lower() in category_name.lower() or category_name.lower().split(' ')[0] in k.lower():
+                matched_cat = k
+                break
+        if matched_cat and len(category_skills[matched_cat]) > 0:
+            pool = list(category_skills[matched_cat])
+            random.shuffle(pool)
+            num_skills = min(len(pool), random.randint(3, 6))
+            skills = pool[:num_skills]
+    # Fallback: pick from domain skills
+    if not skills:
+        domain_skills = job_skills_data.get("domainSkills", {})
+        fallback_keys = list(domain_skills.keys()) if domain_skills else ["general"]
+        fallback_domain = get_random(fallback_keys)
+        pool = list(domain_skills.get(fallback_domain, ["Communication", "Problem Solving", "Teamwork"]))
+        random.shuffle(pool)
+        skills = pool[:random.randint(3, 5)]
+
     return {
         "status": employment_status,
         "company": company["name"],
+        "companyDetails": {
+            "country": company.get("country"),
+            "industry": company.get("industry"),
+            "yearFounded": company.get("yearFounded") or company.get("founded"),
+            "revenue": company.get("revenue"),
+            "netIncome": company.get("netIncome"),
+        },
         "companySize": company_size["size"],
         "industry": company["industry"],
         "jobTitle": job_title["title"],
         "jobCategory": job_category["name"],
+        "skills": skills,
         "yearsExperience": years_experience,
         "workMode": work_mode["mode"],
         "workHoursPerWeek": work_hours,
@@ -563,6 +605,74 @@ def generate_health(age, height_cm, weight_kg):
     vaccination_weights = [65, 25, 10]
     vaccination = vaccination_statuses[weighted_random(vaccination_weights)]
 
+    # Medical history using healthcare_extended data
+    if medical_condition != "None":
+        num_visits = random.randint(1, 3)
+    elif age > 50:
+        num_visits = 1 if random.random() < 0.4 else 0
+    else:
+        num_visits = 1 if random.random() < 0.15 else 0
+
+    medical_history = []
+    for v in range(num_visits):
+        adm_types = ['Urgent', 'Emergency', 'Elective']
+        adm_weights_dict = healthcare_ext_data.get('admissionWeights', {})
+        adm_weights = [adm_weights_dict.get('Urgent', 33), adm_weights_dict.get('Emergency', 33), adm_weights_dict.get('Elective', 34)]
+        admission_type = adm_types[weighted_random(adm_weights)]
+
+        # Billing amount from real distributions
+        billing_dists = healthcare_ext_data.get('billingDistributions', {})
+        billing_dist = billing_dists.get(admission_type, {'min': 500, 'max': 50000, 'median': 25000, 'p25': 13000, 'p75': 38000})
+        billing_amount = round(clamp(normal_random(billing_dist['median'], (billing_dist.get('p75', 38000) - billing_dist.get('p25', 13000)) / 2), billing_dist['min'], billing_dist['max']), 2)
+
+        # Test result
+        test_results_list = ['Normal', 'Abnormal', 'Inconclusive']
+        test_weights_dict = healthcare_ext_data.get('testResultWeights', {})
+        test_weights = [test_weights_dict.get('Normal', 33), test_weights_dict.get('Abnormal', 33), test_weights_dict.get('Inconclusive', 34)]
+        test_result = test_results_list[weighted_random(test_weights)]
+
+        # Hospital and doctor from real data
+        hospitals = healthcare_ext_data.get('hospitals', ['General Hospital'])
+        doctors = healthcare_ext_data.get('doctors', ['Dr. Smith'])
+        hospital = get_random(hospitals)
+        doctor = get_random(doctors)
+
+        # Condition-specific medication
+        cond_meds = healthcare_ext_data.get('conditionMedications', {}).get(medical_condition, [])
+        if cond_meds:
+            med_weights = [m['weight'] for m in cond_meds]
+            visit_medication = cond_meds[weighted_random(med_weights)]['medication']
+        else:
+            visit_medication = get_random(healthcare_data['medications'])
+
+        # Dates: random visit within last 5 years
+        days_ago = random.randint(1, 1825)
+        admission_date = datetime.datetime.now() - datetime.timedelta(days=days_ago)
+        if admission_type == 'Emergency':
+            stay_days = random.randint(1, 14)
+        elif admission_type == 'Urgent':
+            stay_days = random.randint(1, 7)
+        else:
+            stay_days = random.randint(1, 3)
+        discharge_date = admission_date + datetime.timedelta(days=stay_days)
+
+        visit_condition = medical_condition
+        if v > 0 and random.random() >= 0.5:
+            other_conditions = [c for c in healthcare_data['conditions'] if c['name'] != 'None']
+            visit_condition = get_random(other_conditions)['name']
+
+        medical_history.append({
+            "condition": visit_condition,
+            "hospital": hospital,
+            "doctor": doctor,
+            "admissionType": admission_type,
+            "billingAmount": billing_amount,
+            "medication": visit_medication,
+            "testResult": test_result,
+            "admissionDate": admission_date.strftime('%Y-%m-%d'),
+            "dischargeDate": discharge_date.strftime('%Y-%m-%d'),
+        })
+
     return {
         "bmi": bmi,
         "bmiCategory": bmi_category,
@@ -579,6 +689,7 @@ def generate_health(age, height_cm, weight_kg):
         "medicalCondition": medical_condition,
         "insuranceProvider": insurance_provider,
         "medications": medications,
+        "medicalHistory": medical_history,
         "lastCheckupMonthsAgo": last_checkup_months,
         "hasDisability": has_disability,
         "mentalHealth": mental_health,
@@ -1538,3 +1649,200 @@ def generate_stream(count: int = 1000, options: dict = None):
 
     if seed is not None:
         random.seed()  # Reset to system entropy
+
+
+# ─── Standalone Generators (v2.1) ───────────────────────────────────────────
+
+def company_gen():
+    """Generate a standalone company profile."""
+    c = get_random(companies_data)
+    size = COMPANY_SIZES[weighted_random([s['weight'] for s in COMPANY_SIZES])]
+    rating = round(random.uniform(3.0, 5.0), 1)
+    return {
+        "name": c["name"],
+        "country": c.get("country"),
+        "industry": c.get("industry"),
+        "yearFounded": c.get("yearFounded") or c.get("founded"),
+        "revenue": c.get("revenue"),
+        "netIncome": c.get("netIncome"),
+        "size": size["size"],
+        "employeeRange": size["employee_range"],
+        "rating": rating,
+    }
+
+
+def companies_gen(count=10):
+    """Generate multiple company profiles."""
+    return [company_gen() for _ in range(count)]
+
+
+def job_gen():
+    """Generate a standalone job listing."""
+    c = get_random(companies_data)
+    title = get_random(job_titles_data)
+    cat = get_random(job_categories_data)
+    work_mode = WORK_MODES[weighted_random([w['weight'] for w in WORK_MODES])]
+
+    # Skills from job_skills data
+    skills = []
+    category_skills = job_skills_data.get('categorySkills', {})
+    cat_keys = list(category_skills.keys())
+    matched_cat = None
+    for k in cat_keys:
+        if cat['name'].lower().split(' ')[0] in k.lower():
+            matched_cat = k
+            break
+    if matched_cat:
+        pool = list(category_skills[matched_cat])
+        random.shuffle(pool)
+        skills = pool[:random.randint(3, 6)]
+    else:
+        domain_skills = job_skills_data.get('domainSkills', {}).get('general', ['Communication', 'Teamwork'])
+        pool = list(domain_skills)
+        random.shuffle(pool)
+        skills = pool[:4]
+
+    # Salary range
+    role_keys = list(salary_dist_data.keys())
+    role = get_random(role_keys) if role_keys else None
+    dist = salary_dist_data.get(role, {}) if role else {}
+    salary_min = round(dist.get('p25', 2400000) / 80)
+    salary_max = round(dist.get('p75', 9600000) / 80)
+
+    return {
+        "title": title["title"],
+        "company": c["name"],
+        "companyCountry": c.get("country"),
+        "industry": c.get("industry"),
+        "category": cat["name"],
+        "location": f"{get_random(state_data['data'])['city']}, {c.get('country', '')}",
+        "workMode": work_mode["mode"],
+        "skills": skills,
+        "salaryRange": {"min": salary_min, "max": salary_max, "currency": "USD"},
+        "postedDaysAgo": random.randint(1, 30),
+    }
+
+
+def jobs_gen(count=10):
+    """Generate multiple job listings."""
+    return [job_gen() for _ in range(count)]
+
+
+def medical_record():
+    """Generate a standalone medical record."""
+    fn = get_random(first_names['names'])
+    ln = get_random(last_names['surnames'])
+    age = generate_age()
+    gender = get_random(['Male', 'Female'])
+
+    conditions = [c for c in healthcare_data['conditions'] if c['name'] != 'None']
+    condition = conditions[weighted_random([c['weight'] for c in conditions])]
+
+    adm_types = ['Urgent', 'Emergency', 'Elective']
+    admission_type = adm_types[weighted_random([33, 33, 34])]
+
+    hospitals = healthcare_ext_data.get('hospitals', ['General Hospital'])
+    doctors_list = healthcare_ext_data.get('doctors', ['Dr. Smith'])
+    hospital = get_random(hospitals)
+    doctor = get_random(doctors_list)
+
+    billing_dists = healthcare_ext_data.get('billingDistributions', {})
+    billing_dist = billing_dists.get(admission_type, {'min': 500, 'max': 50000, 'median': 25000, 'p25': 13000, 'p75': 38000})
+    billing_amount = round(clamp(normal_random(billing_dist['median'], (billing_dist.get('p75', 38000) - billing_dist.get('p25', 13000)) / 2), billing_dist['min'], billing_dist['max']), 2)
+
+    cond_meds = healthcare_ext_data.get('conditionMedications', {}).get(condition['name'], [])
+    if cond_meds:
+        med_weights = [m['weight'] for m in cond_meds]
+        medication = cond_meds[weighted_random(med_weights)]['medication']
+    else:
+        medication = get_random(healthcare_data['medications'])
+
+    test_results_list = ['Normal', 'Abnormal', 'Inconclusive']
+    test_result = test_results_list[weighted_random([40, 30, 30])]
+
+    days_ago = random.randint(1, 1825)
+    admission_date = datetime.datetime.now() - datetime.timedelta(days=days_ago)
+    stay_days = random.randint(1, 14) if admission_type == 'Emergency' else random.randint(1, 5)
+    discharge_date = admission_date + datetime.timedelta(days=stay_days)
+
+    return {
+        "patient": {"name": f"{fn} {ln}", "age": age, "gender": gender},
+        "hospital": hospital,
+        "doctor": doctor,
+        "condition": condition['name'],
+        "admissionType": admission_type,
+        "billingAmount": billing_amount,
+        "medication": medication,
+        "testResult": test_result,
+        "insuranceProvider": get_random(healthcare_data['insuranceProviders']),
+        "admissionDate": admission_date.strftime('%Y-%m-%d'),
+        "dischargeDate": discharge_date.strftime('%Y-%m-%d'),
+        "roomNumber": random.randint(100, 599),
+    }
+
+
+def medical_records(count=10):
+    """Generate multiple medical records."""
+    return [medical_record() for _ in range(count)]
+
+
+def university_gen():
+    """Generate a standalone university."""
+    u = get_random(universities_data)
+    return {
+        "name": u["name"],
+        "country": u["country"],
+        "countryCode": u.get("code"),
+        "domain": u.get("domain"),
+        "stateProvince": u.get("state"),
+    }
+
+
+def universities_gen(count=10):
+    """Generate multiple universities."""
+    return [university_gen() for _ in range(count)]
+
+
+def transaction_gen():
+    """Generate a standalone financial transaction."""
+    merchants = ['Amazon', 'Walmart', 'Target', 'Costco', 'Starbucks', 'McDonalds', 'Uber', 'Netflix', 'Spotify', 'Apple', 'Google', 'Shell', 'BP', 'CVS', 'Walgreens', 'Home Depot', 'Best Buy', 'Nike', 'Zara', 'IKEA']
+    categories = ['groceries', 'dining', 'transportation', 'entertainment', 'utilities', 'shopping', 'healthcare', 'education', 'travel', 'subscription']
+    types = ['debit', 'credit', 'transfer', 'refund']
+    type_weights = [45, 35, 12, 8]
+    statuses = ['completed', 'pending', 'failed', 'reversed']
+    status_weights = [85, 8, 4, 3]
+    currencies = ['USD', 'EUR', 'GBP', 'INR', 'JPY', 'CAD', 'AUD']
+    currency_weights = [40, 15, 10, 15, 8, 6, 6]
+
+    tx_type = types[weighted_random(type_weights)]
+    category = get_random(categories)
+
+    amount_ranges = {
+        'groceries': (5, 200), 'dining': (8, 120), 'transportation': (2, 80),
+        'entertainment': (5, 100), 'utilities': (30, 300), 'shopping': (10, 500),
+        'healthcare': (15, 2000), 'education': (50, 5000), 'travel': (100, 3000),
+        'subscription': (5, 50)
+    }
+    r = amount_ranges.get(category, (5, 200))
+    amount = round(random.uniform(r[0], r[1]), 2)
+
+    days_ago = random.randint(0, 90)
+    hours_ago = random.randint(0, 23)
+    timestamp = datetime.datetime.now() - datetime.timedelta(days=days_ago, hours=hours_ago)
+
+    return {
+        "id": f"txn_{random.randint(0, 10**12):x}",
+        "amount": amount,
+        "currency": currencies[weighted_random(currency_weights)],
+        "type": tx_type,
+        "merchant": get_random(merchants),
+        "category": category,
+        "timestamp": timestamp.isoformat(),
+        "status": statuses[weighted_random(status_weights)],
+        "cardType": get_random(card_data['cards']),
+    }
+
+
+def transactions_gen(count=10):
+    """Generate multiple financial transactions."""
+    return [transaction_gen() for _ in range(count)]

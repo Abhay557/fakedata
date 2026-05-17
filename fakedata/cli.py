@@ -24,6 +24,9 @@ EXAMPLES:
   # Generate fraud detection dataset with 5%% anomalies
   fakedata generate -n 10000 -a 0.05 -f csv -o fraud_data.csv
 
+  # Generate 500 standalone company profiles
+  fakedata generate --type companies -n 500 -o companies.json
+
   # Preview a single user profile
   fakedata preview
 
@@ -39,6 +42,8 @@ EXAMPLES:
 
     # ─── generate ─────────────────────────────────────────────────────────────
     gen = subparsers.add_parser('generate', help='Generate synthetic user data')
+    gen.add_argument('-T', '--type', type=str, choices=['users', 'companies', 'jobs', 'universities', 'transactions', 'medical_records'], default='users',
+                     help='Type of data to generate (default: users)')
     gen.add_argument('-n', '--count', type=int, default=10,
                      help='Number of users to generate (default: 10)')
     gen.add_argument('-f', '--format', choices=['json', 'csv', 'flat'], default='json',
@@ -103,6 +108,13 @@ EXAMPLES:
                     for _ in range(count)
                 ]
                 print(json.dumps(results, indent=2 if args.pretty else None))
+            elif args.type != 'users':
+                if args.type == 'companies': rows = data.companies_gen(count)
+                elif args.type == 'jobs': rows = data.jobs_gen(count)
+                elif args.type == 'universities': rows = data.universities_gen(count)
+                elif args.type == 'transactions': rows = data.transactions_gen(count)
+                elif args.type == 'medical_records': rows = data.medical_records(count)
+                print(json.dumps(rows, indent=2 if args.pretty else None))
             elif args.format == 'csv':
                 print(data.users_to_csv(count, options if options else None))
             elif args.format == 'flat':
@@ -145,7 +157,13 @@ EXAMPLES:
             else:  # json / flat
                 f.write('[\n')
                 for i in range(count):
-                    u = data.user(options if options else None)
+                    if args.type == 'companies': u = data.company_gen()
+                    elif args.type == 'jobs': u = data.job_gen()
+                    elif args.type == 'universities': u = data.university_gen()
+                    elif args.type == 'transactions': u = data.transaction_gen()
+                    elif args.type == 'medical_records': u = data.medical_record()
+                    else: u = data.user(options if options else None)
+                    
                     line = json.dumps(u, indent=2 if args.pretty else None)
                     f.write(line + (',' if i < count - 1 else '') + '\n')
                     if (i + 1) % PROGRESS_INTERVAL == 0:
@@ -157,7 +175,7 @@ EXAMPLES:
         size_label = f"{size_bytes / 1048576:.1f} MB" if size_bytes >= 1048576 else f"{size_bytes / 1024:.1f} KB"
         print('\r', end='', file=sys.stderr)  # clear progress line
         print(
-            f"✔ Done! Generated {count:,} users in {elapsed}s → {out_path} ({size_label})",
+            f"✔ Done! Generated {count:,} records in {elapsed}s → {out_path} ({size_label})",
             file=sys.stderr
         )
 
